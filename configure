@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# configure script that will fetch and build SimpleITK, then move the results
+# to somewhere that R can install. It takes a long time and uses
+# a substantial amount of disk space
+#
+# Requires git and cmake
+#
+export SimpleITKGit=https://github.com/richardbeare/SimpleITK
+export SITKTAG=ab498372219bdbde558c82a7a2d47fe6cdf54c5b
+
+## All the building is going to happen in an SITK folder
+mkdir -p SITK
+(
+cd SITK
+if [ ! -d SimpleITK ]; then
+   git clone  ${SimpleITKGit} 
+   (cd SimpleITK; git checkout  ${SITKTAG} )
+fi
+
+mkdir -p Build
+cd Build
+
+cmake -DWRAP_R=ON -DWRAP_LUA=OFF -DWRAP_PYTHON=OFF -DWRAP_TCL=OFF -DWRAP_RUBY=OFF -DWRAP_JAVA=OFF -DWRAP_CSHARP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../SimpleITK/SuperBuild/
+
+make 
+
+)
