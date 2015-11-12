@@ -9,6 +9,11 @@
 export SimpleITKGit=https://github.com/richardbeare/SimpleITK
 export SITKTAG=ab498372219bdbde558c82a7a2d47fe6cdf54c5b
 
+export PKGBASED=$(pwd)
+echo ${PKGBASED}
+
+
+
 ## All the building is going to happen in an SITK folder
 mkdir -p SITK
 (
@@ -25,4 +30,5 @@ cmake -DWRAP_R=ON -DWRAP_LUA=OFF -DWRAP_PYTHON=OFF -DWRAP_TCL=OFF -DWRAP_RUBY=OF
 
 make 
 
+mv SimpleITK-build/Wrapping/R/Packaging/SimpleITK/* ${PKGBASED}
 )
