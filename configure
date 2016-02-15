@@ -7,7 +7,7 @@
 # Requires git and cmake
 #
 export SimpleITKGit=https://github.com/richardbeare/SimpleITK
-export SITKTAG=b695db072cecd2bd44f76ece66f3f72ecde5fd29
+export SITKTAG=5ce8f65b028d9e410449de00c66db40f07b6fc45
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
