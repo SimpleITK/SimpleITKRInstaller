@@ -6,8 +6,8 @@
 #
 # Requires git and cmake
 #
-export SimpleITKGit=https://github.com/richardbeare/SimpleITK
-export SITKTAG=5ce8f65b028d9e410449de00c66db40f07b6fc45
+export SimpleITKGit=https://github.com/SimpleITK/SimpleITK
+export SITKTAG=0d5d2e95ddb3ea4f3c64b9075bf7ea46a2ee95c4
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
@@ -26,7 +26,7 @@ fi
 mkdir -p Build
 cd Build
 
-cmake -DWRAP_R=ON -DWRAP_LUA=OFF -DWRAP_PYTHON=OFF -DWRAP_TCL=OFF -DWRAP_RUBY=OFF -DWRAP_JAVA=OFF -DWRAP_CSHARP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../SimpleITK/SuperBuild/
+cmake -DWRAP_R=ON -DWRAP_LUA=OFF -DWRAP_PYTHON=OFF -DWRAP_TCL=OFF -DWRAP_RUBY=OFF -DWRAP_JAVA=OFF -DWRAP_CSHARP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DUSE_SWIG_FROM_GIT=ON -DSWIG_GIT_REPOSITORY:STRING=https://github.com/swig/swig.git -DSWIG_GIT_TAG:STRING=rel-3.0.9 ../SimpleITK/SuperBuild/
 
 make -j2
 
