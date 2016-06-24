@@ -1,13 +1,13 @@
-# simpleitkRinstaller
-Trial of devtools based installer for SimpleITK R installer.
+# SimpleITKRInstaller
+A devtools based installer for SimpleITK R installer.
 
 ```R
-devtools::install_github("richardbeare/simpleitkRinstaller")
+devtools::install_github("SimpleITK/SimpleITKRInstaller")
 ```
 or, turn on mutlicore compilation using
 
 ```R
-devtools::install_github("richardbeare/simpleitkRinstaller", args=c('--configure-vars="MAKEJ=6"'))
+devtools::install_github("SimpleITK/SimpleITKRInstaller", args=c('--configure-vars="MAKEJ=6"'))
 ```
 
 Requires _cmake_ and _git_ in the path.
