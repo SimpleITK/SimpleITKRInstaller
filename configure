@@ -52,5 +52,5 @@ cmake -DWRAP_R=ON -DWRAP_LUA=OFF -DWRAP_PYTHON=OFF -DWRAP_TCL=OFF -DWRAP_RUBY=OF
 echo "Parallel build using -j${MAKEJ}"
 make -j${MAKEJ}
 # Use R to do the move to avoid system specific issues.
-${RCALL} -e file.rename\(list.files\(path=\"SimpleITK-build/Wrapping/R/Packaging/SimpleITK/\", full.names=TRUE\), \"${PKGBASED}\"\)
+${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED}
 )
