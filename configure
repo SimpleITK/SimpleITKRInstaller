@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # configure script that will fetch and build SimpleITK, then move the results
 # to somewhere that R can install. It takes a long time and uses
@@ -12,7 +12,28 @@ export SITKTAG=0d5d2e95ddb3ea4f3c64b9075bf7ea46a2ee95c4
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
 
+## make sure we've got the correct R
+RCALL="${R_HOME}/bin/R"
+export RCALL
 
+CC="$(${RCALL} CMD config CC)"
+CXX="$(${RCALL} CMD config CXX)"
+CFLAGS="$(${RCALL} CMD config CFLAGS)"
+CXXFLAGS="$(${RCALL} CMD config CXX1XFLAGS)"
+CPPFLAGS="$(${RCALL} CMD config CPPFLAGS)"
+export CXX
+export CC
+export CXXFLAGS
+export CPPFLAGS
+export CFLAGS
+
+## Level of parallel build
+## Don't use the Ncpus option for install.packages because it
+## refers to multiple packages
+if [ -z "${MAKEJ}" ] ; then
+    MAKEJ=1
+    export MAKEJ
+fi
 
 ## All the building is going to happen in an SITK folder
 mkdir -p SITK
@@ -26,9 +47,10 @@ fi
 mkdir -p Build
 cd Build
 
-cmake -DWRAP_R=ON -DWRAP_LUA=OFF -DWRAP_PYTHON=OFF -DWRAP_TCL=OFF -DWRAP_RUBY=OFF -DWRAP_JAVA=OFF -DWRAP_CSHARP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DUSE_SWIG_FROM_GIT=ON -DSWIG_GIT_REPOSITORY:STRING=https://github.com/swig/swig.git -DSWIG_GIT_TAG:STRING=rel-3.0.9 ../SimpleITK/SuperBuild/
+cmake -DWRAP_R=ON -DWRAP_LUA=OFF -DWRAP_PYTHON=OFF -DWRAP_TCL=OFF -DWRAP_RUBY=OFF -DWRAP_JAVA=OFF -DWRAP_CSHARP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../SimpleITK/SuperBuild/
 
-make -j2
-
-mv SimpleITK-build/Wrapping/R/Packaging/SimpleITK/* ${PKGBASED}
+echo "Parallel build using -j${MAKEJ}"
+make -j${MAKEJ}
+# Use R to do the move to avoid system specific issues.
+${RCALL} -e file.rename\(list.files\(path=\"SimpleITK-build/Wrapping/R/Packaging/SimpleITK/\", full.names=TRUE\), \"${PKGBASED}\"\)
 )
