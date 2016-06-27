@@ -13,6 +13,7 @@ export PKGBASED=$(pwd)
 echo ${PKGBASED}
 
 ## make sure we've got the correct R
+[ -z "$R_HOME" ] || ( echo "Environment variable \"R_HOME\" is not set!" && exit 1)
 RCALL="${R_HOME}/bin/R"
 export RCALL
 
@@ -38,29 +39,30 @@ fi
 ## All the building is going to happen in an SITK folder
 mkdir -p SITK
 (
-cd SITK
-if [ ! -d SimpleITK ]; then
-   git clone  ${SimpleITKGit} 
-   (cd SimpleITK; git checkout  ${SITKTAG} )
-fi
+    cd SITK &&
+    [-d SimpleITK ] ||
+      ( git clone  ${SimpleITKGit} &&
+          cd SimpleITK &&
+          git checkout  ${SITKTAG} ) || exit 1
 
-mkdir -p Build
-cd Build
+    mkdir -p Build &&
+    cd Build &&
+    cmake \
+        -DWRAP_R=ON \
+        -DWRAP_LUA=OFF \
+        -DWRAP_PYTHON=OFF \
+        -DWRAP_TCL=OFF \
+        -DWRAP_RUBY=OFF \
+        -DWRAP_JAVA=OFF \
+        -DWRAP_CSHARP=OFF \
+        -DBUILD_EXAMPLES=OFF \
+        -DBUILD_TESTING=OFF \
+        ../SimpleITK/SuperBuild/ ||
+    exit 1
 
-cmake \
-    -DWRAP_R=ON \
-    -DWRAP_LUA=OFF \
-    -DWRAP_PYTHON=OFF \
-    -DWRAP_TCL=OFF \
-    -DWRAP_RUBY=OFF \
-    -DWRAP_JAVA=OFF \
-    -DWRAP_CSHARP=OFF \
-    -DBUILD_EXAMPLES=OFF \
-    -DBUILD_TESTING=OFF \
-    ../SimpleITK/SuperBuild/
-
-echo "Parallel build using -j${MAKEJ}"
-make -j${MAKEJ}
-# Use R to do the move to avoid system specific issues.
-${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED}
+    echo "Parallel build using -j${MAKEJ}"
+    make -j${MAKEJ} &&
+    # Use R to do the move to avoid system specific issues.
+    ${RCALL} -f ${PKGBASED} /sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
+    exit 1
 )
