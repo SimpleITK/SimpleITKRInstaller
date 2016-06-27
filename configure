@@ -47,7 +47,17 @@ fi
 mkdir -p Build
 cd Build
 
-cmake -DWRAP_R=ON -DWRAP_LUA=OFF -DWRAP_PYTHON=OFF -DWRAP_TCL=OFF -DWRAP_RUBY=OFF -DWRAP_JAVA=OFF -DWRAP_CSHARP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../SimpleITK/SuperBuild/
+cmake \
+    -DWRAP_R=ON \
+    -DWRAP_LUA=OFF \
+    -DWRAP_PYTHON=OFF \
+    -DWRAP_TCL=OFF \
+    -DWRAP_RUBY=OFF \
+    -DWRAP_JAVA=OFF \
+    -DWRAP_CSHARP=OFF \
+    -DBUILD_EXAMPLES=OFF \
+    -DBUILD_TESTING=OFF \
+    ../SimpleITK/SuperBuild/
 
 echo "Parallel build using -j${MAKEJ}"
 make -j${MAKEJ}
