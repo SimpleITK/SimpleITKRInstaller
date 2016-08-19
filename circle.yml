@@ -12,5 +12,5 @@ machine:
 
 test:
     pre:
-      - R -q --no-save -e 'devtools::install('/home/ubuntu/SimpleITKRinstaller'); q()'
+      - R -q --no-save -e 'devtools::install("/home/ubuntu/SimpleITKRinstaller"); q()'
       
