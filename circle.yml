@@ -5,4 +5,5 @@ machine:
           - sudo apt-get update
           - sudo apt-get -y install --only-upgrade cmake libcurl4-openssl-dev libssl-dev
           - sudo apt-get -y install r-base-dev
-          - R -q --no-save -e 'install.packages("devtools", repo="https://cloud.r-project.org/"); q()'
+	  - mkdir Rlibs
+          - R -q --no-save -e 'install.packages("devtools", lib="Rlibs", repo="http://cloud.r-project.org/"); q()'
