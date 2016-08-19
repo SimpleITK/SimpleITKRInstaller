@@ -7,3 +7,10 @@ machine:
           - sudo apt-get -y install r-base-dev
           - mkdir Rlibs
           - R -q --no-save -e 'install.packages("devtools", lib="Rlibs", repo="http://cloud.r-project.org/"); q()'
+        environment:
+          R_LIBS: /home/ubuntu/Rlibs
+
+test:
+    pre:
+      - R -q --no-save -e 'devtools::install('/home/ubuntu/SimpleITKRinstaller'); q()'
+      
