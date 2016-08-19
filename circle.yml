@@ -1,0 +1,51 @@
+machine:
+        pre:
+          - sudo apt-get -y install software-properties-common
+          - sudo add-apt-repository -y "deb https://cloud.r-project.org/bin/linux/ubuntu trusty/"
+          - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+          - sudo apt-get update
+          - sudo apt-get -y install r-base-dev
+          - mkdir -p ${HOME}/Rlibs
+          - mkdir -p ${HOME}/.ssh_tmp
+        environment:
+          R_LIBS: /home/ubuntu/Rlibs
+          ExternalData_OBJECT_STORES: ${HOME}/.ExternalData
+          SIMPLEITK_BUILD_DIR: ${HOME}/SimpleITKRInstaller/SITK
+          CMAKE_DOWNLOAD_FILE: cmake-3.6.0-Linux-x86_64.sh
+          ITK_REPOSITORY: ${ExternalData_OBJECT_STORES}/ITK.git
+          DISTCC_TCP_CORK: "0"
+          DISTCC_DIR: ${HOME}/.distcc
+          MAKE_J: $(expr $CIRCLE_NODE_TOTAL + 1)
+          SITK_NOSHOW: "1"
+
+        post:
+           - sudo apt-get remove cmake && sudo apt-get install distcc
+           - sudo sed -i.bak s/STARTDISTCC=\"false\"/STARTDISTCC=\"true\"/g /etc/default/distcc && sudo /etc/init.d/distcc start
+           - mkdir -p "${DISTCC_DIR}" && printf -- "--randomize localhost/1 --localslots=1\n" > "${DISTCC_DIR}/hosts" && for ((i=1;i<CIRCLE_NODE_TOTAL;i++)); do printf "ubuntu@node$i/2\n" >> "${DISTCC_DIR}/hosts"; done
+           - mkdir -p "${ExternalData_OBJECT_STORES}"
+           - cd ${ExternalData_OBJECT_STORES} && if [[ ! -e ${CMAKE_DOWNLOAD_FILE} ]]; then curl -sSO https://cmake.org/files/v3.6/${CMAKE_DOWNLOAD_FILE}; fi
+           - echo "y\n" | sudo bash "${ExternalData_OBJECT_STORES}/${CMAKE_DOWNLOAD_FILE}" --prefix=/usr/local --exclude-subdir
+           - if [ $CIRCLE_NODE_INDEX -eq 0 ]; then mkdir -p .ssh && printf -- "Host *\nControlMaster auto\nControlPath ~/.ssh_tmp/master-%%r@%%h:%%p\n" >> .ssh/config ; fi
+
+dependencies:
+    cache_directories:
+        - "~/.ExternalData"
+        - "~/Rlibs"
+    pre:
+        - cd ${ExternalData_OBJECT_STORES} && if [[ ! -e ${ITK_REPOSITORY} ]]; then git clone --bare https://ITK.org/ITK.git; fi && cd ${ITK_REPOSITORY} && git fetch origin
+    post:
+        - mkdir -p "${DISTCC_DIR}" && printf -- "--randomize localhost/2 --localslots=1\n" > "${DISTCC_DIR}/hosts" && for ((i=1;i<CIRCLE_NODE_TOTAL;i++)); do printf "ubuntu@node$i/2\n" >> "${DISTCC_DIR}/hosts"; done
+    override:
+      - if [ $CIRCLE_NODE_INDEX -eq 0 ]; then for ((i=1;i<CIRCLE_NODE_TOTAL;i++)); do ssh -fMN ubuntu@node$i; done ; fi
+      - if [ $CIRCLE_NODE_INDEX -eq 0 ]; then R -q --no-save --file=/home/ubuntu/SimpleITKRInstaller/circleci_R_commands.R; fi
+test:
+    pre:
+      - if [ $CIRCLE_NODE_INDEX -ne 0 ]; then rsync -ravz -e ssh ubuntu@node0:${SIMPLEITK_BUILD_DIR}/ ${SIMPLEITK_BUILD_DIR} && rsync -ravz -e ssh ubuntu@node0:${ExternalData_OBJECT_STORES} ${ExternalData_OBJECT_STORES}; fi:
+          parallel: true
+    override:
+        - ctest -j 2 -I ${CIRCLE_NODE_INDEX},,${CIRCLE_NODE_TOTAL}:
+            parallel: true
+            pwd: SITK/Build/SimpleITK-build
+            environment:
+                ITK_GLOBAL_DEFAULT_NUMBER_OF_THREAD: 2
+                CTEST_OUTPUT_ON_FAILURE: 1      
