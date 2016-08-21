@@ -16,7 +16,7 @@ machine:
           SITK_NOSHOW: "1"
 
         post:
-           - sudo apt-get remove cmake && sudo apt-get install swig distcc lua5.1 luarocks
+           - sudo apt-get remove cmake && sudo apt-get install distcc
            - sudo sed -i.bak s/STARTDISTCC=\"false\"/STARTDISTCC=\"true\"/g /etc/default/distcc && sudo /etc/init.d/distcc start
            - mkdir -p "${ExternalData_OBJECT_STORES}"
            - cd ${ExternalData_OBJECT_STORES} && if [[ ! -e ${CMAKE_DOWNLOAD_FILE} ]]; then curl -sSO https://cmake.org/files/v3.6/${CMAKE_DOWNLOAD_FILE}; fi
