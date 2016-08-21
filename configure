@@ -28,6 +28,16 @@ export CXXFLAGS
 export CPPFLAGS
 export CFLAGS
 
+if [ -z "${RTESTON}" ] ; then
+    RTESTON=OFF
+fi
+
+if [ ! -z ${USEDISTCC} ] ; then
+    CC="distcc ${CC}"
+    CXX="distcc ${CXX}"
+    export CC
+    export CXX
+fi
 ## Level of parallel build
 ## Don't use the Ncpus option for install.packages because it
 ## refers to multiple packages
@@ -56,7 +66,7 @@ mkdir -p SITK
         -DWRAP_JAVA=OFF \
         -DWRAP_CSHARP=OFF \
         -DBUILD_EXAMPLES=OFF \
-        -DBUILD_TESTING=OFF \
+        -DBUILD_TESTING=${RTESTON} \
         ../SimpleITK/SuperBuild/ ||
     exit 1
 
