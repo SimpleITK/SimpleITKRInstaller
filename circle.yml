@@ -5,7 +5,6 @@ machine:
           - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
           - sudo apt-get update
           - sudo apt-get -y install r-base-dev
-          - mkdir Rlibs
         environment:
           R_LIBS: /home/ubuntu/Rlibs
           ExternalData_OBJECT_STORES: ${HOME}/.ExternalData
@@ -27,10 +26,10 @@ dependencies:
         - "~/.ExternalData"
     post:
         - mkdir -p "${DISTCC_DIR}" && printf -- "--randomize localhost/2 --localslots=1\n" > "${DISTCC_DIR}/hosts" && for ((i=1;i<CIRCLE_NODE_TOTAL;i++)); do printf "ubuntu@node$i/2\n" >> "${DISTCC_DIR}/hosts"; done
-        - mkdir -p ${BUILD_DIR}
 
 
 test:
     pre:
-      - R -q --no-save --file=/home/ubuntu/SimpleITKRInstaller/circleci_R_commands.R1
+      - mkdir -p ${HOME}/Rlibs
+      - R -q --no-save --file=/home/ubuntu/SimpleITKRInstaller/circleci_R_commands.R
       
