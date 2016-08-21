@@ -5,6 +5,7 @@ machine:
           - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
           - sudo apt-get update
           - sudo apt-get -y install r-base-dev
+          - mkdir -p ${HOME}/Rlibs
         environment:
           R_LIBS: /home/ubuntu/Rlibs
           ExternalData_OBJECT_STORES: ${HOME}/.ExternalData
@@ -30,6 +31,5 @@ dependencies:
 
 test:
     pre:
-      - mkdir -p ${HOME}/Rlibs
       - R -q --no-save --file=/home/ubuntu/SimpleITKRInstaller/circleci_R_commands.R
       
