@@ -2,11 +2,8 @@
 ## to do it all on the command line
 
 ## devtools install
-install.packages("devtools", lib="Rlibs", repo="http://cloud.r-project.org/")
+install.packages("devtools", lib="~/Rlibs", repo="http://cloud.r-project.org/")
 
-## Get the build environment variables
-
-makej <- as.numeric(Sys.getenv("MAKE_J"))
 
 # set up the configure vars 
 configvars <- paste0('--configure-vars="MAKEJ=', makej, ' RTESTON=ON USEDISTCC=1"')
