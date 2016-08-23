@@ -36,7 +36,7 @@ test:
     override:
         - ctest -j 2 -I ${CIRCLE_NODE_INDEX},,${CIRCLE_NODE_TOTAL}:
             parallel: true
-            pwd: ${HOME}/SimpleITKRInstaller/SITK/Build/SimpleITK-build
+            pwd: SITK/Build/SimpleITK-build
             environment:
                 ITK_GLOBAL_DEFAULT_NUMBER_OF_THREAD: 2
                 CTEST_OUTPUT_ON_FAILURE: 1`      
