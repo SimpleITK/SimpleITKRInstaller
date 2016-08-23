@@ -31,10 +31,10 @@ dependencies:
         - mkdir -p "${DISTCC_DIR}" && printf -- "--randomize localhost/2 --localslots=1\n" > "${DISTCC_DIR}/hosts" && for ((i=1;i<CIRCLE_NODE_TOTAL;i++)); do printf "ubuntu@node$i/2\n" >> "${DISTCC_DIR}/hosts"; done
 
     override:
-      - if [ $CIRCLE_NODE_INDEX -eq 0 ]; then R -q --no-save --file=/home/ubuntu/SimpleITKRInstaller/circleci_R_commands.R; fi:
+      - if [ $CIRCLE_NODE_INDEX -eq 0 ]; then R -q --no-save --file=/home/ubuntu/SimpleITKRInstaller/circleci_R_commands.R; fi
 test:
     pre:
-      - if [ $CIRCLE_NODE_INDEX -ne 0 ]; then rsync -ravz -e ssh ubuntu@node0:${SIMPLEITK_BUILD_DIR}/ ${SIMPLEITK_BUILD_DIR}/ && rsync -ravz -e ssh ubuntu@node0:${ExternalData_OBJECT_STORES}/ ${ExternalData_OBJECT_STORES}/; fi:
+      - if [ $CIRCLE_NODE_INDEX -ne 0 ]; then rsync -ravz -e ssh ubuntu@node0:${SIMPLEITK_BUILD_DIR}/ ${SIMPLEITK_BUILD_DIR}/ && rsync -ravz -e ssh ubuntu@node0:${ExternalData_OBJECT_STORES}/ ${ExternalData_OBJECT_STORES}/; fi
     override:
         - ctest -j 2 -I ${CIRCLE_NODE_INDEX},,${CIRCLE_NODE_TOTAL}:
             parallel: true
