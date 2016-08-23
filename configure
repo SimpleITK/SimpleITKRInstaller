@@ -50,7 +50,7 @@ fi
 mkdir -p SITK
 (
     cd SITK &&
-    [-d SimpleITK ] ||
+    [ -d SimpleITK ] ||
       ( git clone  ${SimpleITKGit} &&
           cd SimpleITK &&
           git checkout  ${SITKTAG} ) || exit 1
