@@ -36,9 +36,9 @@ test:
     pre:
       - if [ $CIRCLE_NODE_INDEX -ne 0 ]; then rsync -ravz -e ssh ubuntu@node0:${SIMPLEITK_BUILD_DIR}/ ${SIMPLEITK_BUILD_DIR}/ && rsync -ravz -e ssh ubuntu@node0:${ExternalData_OBJECT_STORES}/ ${ExternalData_OBJECT_STORES}/; fi
     override:
-        - ctest -j 2 -I ${CIRCLE_NODE_INDEX},,${CIRCLE_NODE_TOTAL}:
+        - ctest -j 2 -I ${CIRCLE_NODE_INDEX},,${CIRCLE_NODE_TOTAL}
             parallel: true
             pwd: SITK/Build/SimpleITK-build
             environment:
                 ITK_GLOBAL_DEFAULT_NUMBER_OF_THREAD: 2
-                CTEST_OUTPUT_ON_FAILURE: 1`      
+                CTEST_OUTPUT_ON_FAILURE: 1      
