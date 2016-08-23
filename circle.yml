@@ -33,6 +33,8 @@ dependencies:
 test:
     pre:
       - R -q --no-save --file=/home/ubuntu/SimpleITKRInstaller/circleci_R_commands.R
+      - if [ $CIRCLE_NODE_INDEX -ne 0 ]; then rsync -ravz -e ssh ubuntu@node0:${SIMPLEITK_BUILD_DIR}/ ${SIMPLEITK_BUILD_DIR}/ && rsync -ravz -e ssh ubuntu@node0:${ExternalData_OBJECT_STORES}/ ${ExternalData_OBJECT_STORES}/; fi:
+        parallel: true
     override:
         - ctest -j 2 -I ${CIRCLE_NODE_INDEX},,${CIRCLE_NODE_TOTAL}:
             parallel: true
