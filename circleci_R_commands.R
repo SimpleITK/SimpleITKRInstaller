@@ -4,6 +4,7 @@
 if (!require(devtools)) {
   ## devtools install
   install.packages("devtools", lib="~/Rlibs", repo="http://cloud.r-project.org/")
+  ## Just in case we're borderline on RAM later on
 }
 makej <- as.numeric(Sys.getenv("MAKE_J"))
 # deal with missing entries
@@ -28,5 +29,6 @@ Sys.setenv(CC = paste("distcc", CC),
            RTESTON="ON",
            MAKEJ=makej,
            DITK_REPOSITORY=paste0("-DITK_REPOSITORY=", ITKREPO))
-
+## Just in case we're borderline on RAM later on
+gc()
 devtools::install("/home/ubuntu/SimpleITKRInstaller")
