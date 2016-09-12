@@ -5,6 +5,7 @@ machine:
           - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
           - sudo apt-get update
           - sudo apt-get -y install r-base-dev
+          - sudo apt-get -y install libssh2-1-dev
           - mkdir -p ${HOME}/Rlibs
           - mkdir -p ${HOME}/.ssh_tmp
         environment:
