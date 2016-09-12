@@ -25,7 +25,7 @@ ITKREPO <- Sys.getenv("ITK_REPOSITORY")
 # pass CC and CXX via environment
 Sys.setenv(CC = paste("distcc", CC),
            CXX= paste("distcc", CXX),
-           RTESTON="ON",
+           RTESTON="OFF",
            MAKEJ=makej,
            DITK_REPOSITORY=paste0("-DITK_REPOSITORY=", ITKREPO))
 
