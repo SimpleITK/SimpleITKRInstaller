@@ -6,6 +6,8 @@ machine:
           - sudo apt-get update
           - sudo apt-get -y install r-base-dev
           - sudo apt-get -y install libssh2-1-dev
+          - sudo service postgresql stop
+          - sudo service mysql stop
           - mkdir -p ${HOME}/Rlibs
           - mkdir -p ${HOME}/.ssh_tmp
         environment:
