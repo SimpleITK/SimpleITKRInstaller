@@ -28,6 +28,7 @@ Sys.setenv(CC = paste("distcc", CC),
            CXX= paste("distcc", CXX),
            RTESTON="OFF",
            MAKEJ=makej,
+           DSHARED_LIB="-DBUILD_SHARED_LIBS:BOOL=ON",
            DITK_REPOSITORY=paste0("-DITK_REPOSITORY=", ITKREPO))
 ## Just in case we're borderline on RAM later on
 gc()
