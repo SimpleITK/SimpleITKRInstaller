@@ -60,6 +60,7 @@ mkdir -p SITK
         -DWRAP_CSHARP=OFF \
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=${RTESTON} \
+        ${DSHARED_LIB} \
 	${DITK_REPOSITORY} \
         ../SimpleITK/SuperBuild/ ||
     exit 1
