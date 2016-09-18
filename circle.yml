@@ -20,7 +20,7 @@ machine:
           DISTCC_DIR: ${HOME}/.distcc
           MAKE_J: $(expr $CIRCLE_NODE_TOTAL + 1)
           SITK_NOSHOW: "1"
-          LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}:${SIMPLEITK_BUILD_DIR}/Build/ITK-prefix/lib/:${SIMPLEITK_BUILD_DIR}/Build/lib/
+          LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}:${SIMPLEITK_BUILD_DIR}/Build/ITK-build/lib/:${SIMPLEITK_BUILD_DIR}/Build/SimpleITK-build/lib/
         post:
            - sudo apt-get remove cmake && sudo apt-get install distcc
            - sudo service mysql stop
