@@ -8,6 +8,7 @@
 #
 export SimpleITKGit=https://github.com/SimpleITK/SimpleITK
 export SITKTAG=v0.10.0
+export SITKTAG=master
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
