@@ -7,7 +7,9 @@
 # Requires git and cmake
 #
 export SimpleITKGit=https://github.com/SimpleITK/SimpleITK
+export SimpleITKGit=https://github.com/richardbeare/SimpleITK
 export SITKTAG=v0.10.0
+export SITKTAG=820b1d85194b99c84095f7f8734da4c19a4db558
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
@@ -17,24 +19,27 @@ echo ${PKGBASED}
 RCALL="${R_HOME}/bin/R"
 export RCALL
 
-CC="$(${RCALL} CMD config CC)"
-CXX="$(${RCALL} CMD config CXX)"
-CFLAGS="$(${RCALL} CMD config CFLAGS)"
-CXXFLAGS="$(${RCALL} CMD config CXX1XFLAGS)"
-CPPFLAGS="$(${RCALL} CMD config CPPFLAGS)"
+CC=${CC:-$(${RCALL} CMD config CC)}
+CXX=${CXX:-$(${RCALL} CMD config CXX)}
+CFLAGS=${CFLAGS:-$(${RCALL} CMD config CFLAGS)}
+CXXFLAGS=${CXXFLAGS:-$(${RCALL} CMD config CXX1XFLAGS)}
+CPPFLAGS=${CPPFLAGS:-$(${RCALL} CMD config CPPFLAGS)}
 export CXX
 export CC
 export CXXFLAGS
 export CPPFLAGS
 export CFLAGS
 
+
+RTESTON=${RTESTON:-OFF}
+export RTESTON
 ## Level of parallel build
 ## Don't use the Ncpus option for install.packages because it
 ## refers to multiple packages
-if [ -z "${MAKEJ}" ] ; then
-    MAKEJ=1
-    export MAKEJ
-fi
+MAKEJ=${MAKEJ:-1}
+export MAKEJ
+
+
 
 ## All the building is going to happen in an SITK folder
 mkdir -p SITK
@@ -56,7 +61,9 @@ mkdir -p SITK
         -DWRAP_JAVA=OFF \
         -DWRAP_CSHARP=OFF \
         -DBUILD_EXAMPLES=OFF \
-        -DBUILD_TESTING=OFF \
+        -DBUILD_TESTING=${RTESTON} \
+        ${DSHARED_LIB} \
+	${DITK_REPOSITORY} \
         ../SimpleITK/SuperBuild/ ||
     exit 1
 
