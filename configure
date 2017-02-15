@@ -7,7 +7,7 @@
 # Requires git and cmake
 #
 export SimpleITKGit=https://github.com/SimpleITK/SimpleITK
-export SITKTAG=v0.10.0
+export SITKTAG=v1.0rc1
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
@@ -48,13 +48,8 @@ mkdir -p SITK
     mkdir -p Build &&
     cd Build &&
     cmake \
+        -DWRAP_DEFAULT=OFF\
         -DWRAP_R=ON \
-        -DWRAP_LUA=OFF \
-        -DWRAP_PYTHON=OFF \
-        -DWRAP_TCL=OFF \
-        -DWRAP_RUBY=OFF \
-        -DWRAP_JAVA=OFF \
-        -DWRAP_CSHARP=OFF \
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=OFF \
         ../SimpleITK/SuperBuild/ ||
