@@ -31,10 +31,18 @@ export CFLAGS
 ## Level of parallel build
 ## Don't use the Ncpus option for install.packages because it
 ## refers to multiple packages
-if [ -z "${MAKEJ}" ] ; then
-    MAKEJ=1
-    export MAKEJ
-fi
+MAKEJ=${MAKEJ:-1}
+export MAKEJ
+
+## Get rid of the colons
+CMAKE_EXTRA_FLAGS=${CMAKE_EXTRA_FLAGS//:/ }
+
+cmake $CMAKE_EXTRA_FLAGS \
+        -DWRAP_DEFAULT=OFF\
+        -DWRAP_R=ON \
+        -DBUILD_EXAMPLES=OFF \
+        -DBUILD_TESTING=OFF \
+        ../SimpleITK/SuperBuild/
 
 ## All the building is going to happen in an SITK folder
 mkdir -p SITK
@@ -47,7 +55,7 @@ mkdir -p SITK
 
     mkdir -p Build &&
     cd Build &&
-    cmake \
+    cmake $CMAKE_EXTRA_FLAGS \
         -DWRAP_DEFAULT=OFF\
         -DWRAP_R=ON \
         -DBUILD_EXAMPLES=OFF \
