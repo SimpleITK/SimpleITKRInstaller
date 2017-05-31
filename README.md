@@ -13,7 +13,7 @@ devtools::install_github("hadley/devtools")
 
 See below if you have problems.
 
-Ensure that _cmake_ and _git_ are in the path.
+Ensure that _cmake_ and _git_ are in the path. Then run the installation:
 
 ```R
 devtools::install_github("SimpleITK/SimpleITKRInstaller")
@@ -24,9 +24,7 @@ or, turn on mutlicore compilation using
 devtools::install_github("SimpleITK/SimpleITKRInstaller", args=c('--configure-vars="MAKEJ=6"'))
 ```
 
-Requires _cmake_ and _git_ in the path.
-
-Tested on Linux and Mac.
+This will fetch all of the dependencies and take a long time to compile.
 
 ## Known problems
 
