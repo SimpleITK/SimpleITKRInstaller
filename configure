@@ -35,7 +35,7 @@ MAKEJ=${MAKEJ:-1}
 export MAKEJ
 
 ## Get rid of the colons
-CMAKE_EXTRA_FLAGS=${CMAKE_EXTRA_FLAGS//:/ }
+CMAKE_EXTRA_FLAGS=${CMAKE_EXTRA_FLAGS//;/ }
 
 cmake $CMAKE_EXTRA_FLAGS \
         -DWRAP_DEFAULT=OFF\
