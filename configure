@@ -35,14 +35,7 @@ MAKEJ=${MAKEJ:-1}
 export MAKEJ
 
 ## Get rid of the colons
-CMAKE_EXTRA_FLAGS=${CMAKE_EXTRA_FLAGS//;/ }
-
-cmake $CMAKE_EXTRA_FLAGS \
-        -DWRAP_DEFAULT=OFF\
-        -DWRAP_R=ON \
-        -DBUILD_EXAMPLES=OFF \
-        -DBUILD_TESTING=OFF \
-        ../SimpleITK/SuperBuild/
+export CMAKE_EXTRA_FLAGS=${CMAKE_EXTRA_FLAGS//;/ }
 
 ## All the building is going to happen in an SITK folder
 mkdir -p SITK
