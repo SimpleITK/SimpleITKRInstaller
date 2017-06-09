@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # configure script that will fetch and build SimpleITK, then move the results
 # to somewhere that R can install. It takes a long time and uses
