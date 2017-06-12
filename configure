@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # configure script that will fetch and build SimpleITK, then move the results
 # to somewhere that R can install. It takes a long time and uses
@@ -13,7 +13,7 @@ export PKGBASED=$(pwd)
 echo ${PKGBASED}
 
 ## make sure we've got the correct R
-[ -z "$R_HOME" ] || ( echo "Environment variable \"R_HOME\" is not set!" && exit 1)
+[ -z "$R_HOME" ] &&  echo "Environment variable \"R_HOME\" is not set!" && exit 1
 RCALL="${R_HOME}/bin/R"
 export RCALL
 
