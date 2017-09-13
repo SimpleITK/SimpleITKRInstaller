@@ -22,14 +22,14 @@ jobs:
             sudo pip install numpy scikit-ci-addons
             ci_addons circle/install_cmake.py 3.7.2
       - run:
-          name: Intall R Package Dependencies
+          name: Install R Package Dependencies
           command: |
              R -e 'install.packages("devtools", repo="http://cloud.r-project.org/")'
       - run:
           name: Build SimpleITK R Package
           no_output_timeout: 20.0m
           environment:
-             MAKEJ: 5
+             MAKEJ: 4
              RTESTON: ON
              ITK_GLOBAL_DEFAULT_NUMBER_OF_THREAD: 2
           command: |
