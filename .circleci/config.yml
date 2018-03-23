@@ -33,5 +33,5 @@ jobs:
              RTESTON: ON
              ITK_GLOBAL_DEFAULT_NUMBER_OF_THREAD: 2
           command: |
-             R -e "devtools::install(c('/home/circleci/SimpleITKRInstaller'), args=c('--configure-vars="MAKEJ=5"'))"
+             R -e "devtools::install(c('/home/circleci/SimpleITKRInstaller'), args=c('--configure-vars="MAKEJ=4"'))"
     
