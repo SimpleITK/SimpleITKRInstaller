@@ -5,7 +5,9 @@ Title: Bindings to SimpleITK Image segmentation and registration toolkit
 Authors@R: c(person("Richard", "Beare", role = c("aut", "cre"),
                       email = "Richard.Beare@ieee.org"),
                    person("Bradley", "Lowekamp", role = "aut",
-                     email = "blowekamp@mail.nih.gov"))
+                     email = "blowekamp@mail.nih.gov"),
+		     person("Ziv", "Yaniv", role="aut",
+		     email = "zivrafael.yaniv@nih.gov"))
 Author: Richard Beare, Bradley Lowekamp, plus loads of others
 Depends: R (>= 3.2)
 Imports: methods
