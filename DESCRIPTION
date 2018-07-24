@@ -14,7 +14,7 @@ Imports: methods
 Description: This package is an interface to SimpleITK, which is a simplified
      interface to the Insight Toolkit (ITK) for medical image segmentation
      and registration.
-License: Apache 2.0
+License: Apache License 2.0
 URL: http://www.simpleitk.org, http://www.itk.org
 BugReports: http://issues.itk.org
 Maintainer: Richard Beare <Richard.Beare@ieee.org>
