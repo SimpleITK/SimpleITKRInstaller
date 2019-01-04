@@ -20,7 +20,7 @@ jobs:
             sudo apt-get -y install r-base-dev rsync
             mkdir ~/Rlibs
             sudo pip install numpy scikit-ci-addons
-            ci_addons circle/install_cmake.py 3.7.2
+            ci_addons circle/install_cmake.py 3.11.4
       - run:
           name: Install R Package Dependencies
           command: |
