@@ -15,7 +15,8 @@ env:
     - RGL_USE_NULL=TRUE
     - PROJECT_NAME=neuroconductor
     - DISPLAY=:99.0
-r_check_args: --as-cran --install-args=--build
+    - R_CHECK_ARGS="--as-cran --install-args=--build"
+    - WARNINGS_ARE_ERRORS=1 
 
 before_install:
   - ulimit -n 2048
@@ -31,11 +32,28 @@ before_install:
   - x=`cmake_setup`; echo "${x}"; eval ${x};
   - cmake --version  
   - rhome=`Rscript -e "cat(R.home())"`; echo ${rhome}; ls ${rhome};
+  - travis_run_cache 
+
+script:
+  # - source ~/.R/Makevars
+  - x=`export_clang_cxx`; eval ${x}
+  - travis_wait 100 R CMD build ${R_BUILD_ARGS} . 
+  - rm -f travis_wait*.log
+  - PKG_TARBALL=$(ls -1t *.tar.gz | head -n 1)
+  - ls
+  - travis_wait 100 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? ;
+  - rm -f travis_wait*.log
+  - if [[ $CHECK_RET -ne 0 ]];
+    then
+      echo "R CMD check failed"; 
+      check_fail; 
+      dump_logs; 
+      travis_terminate 1;
+    fi  
+  - check_warnings
 
 after_success:
-  - cat ${PACKAGE_NAME}.Rcheck/00install.out
-  - cat ${PACKAGE_NAME}.Rcheck/00check.log
+  - dump_logs
 
 after_failure:
-  - cat ${PACKAGE_NAME}.Rcheck/00install.out
-  - cat ${PACKAGE_NAME}.Rcheck/00check.log
+  - dump_logs
