@@ -1,3 +1,4 @@
+^\.circleci$
 ^SITK/*$
 ^appveyor\.yml$
 ^\.travis\.yml$
