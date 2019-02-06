@@ -60,4 +60,5 @@ mkdir -p SITK
     # Use R to do the move to avoid system specific issues.
     ${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
     exit 1
+    rm -f ${PKGBASED}/sitkmove.R
 )
