@@ -31,7 +31,7 @@ before_install:
   - cmake --version
   - x=`cmake_setup`; echo "${x}"; eval ${x};
   - cmake --version  
-  - rhome=`Rscript -e "cat(R.home())"`; echo ${rhome}; ls ${rhome};
+  - rhome=`R RHOME`; echo ${rhome}; ls ${rhome};
   - travis_run_cache 
 
 script:
