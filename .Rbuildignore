@@ -1,3 +1,4 @@
+^SITK/*$
 ^appveyor\.yml$
 ^\.travis\.yml$
 ^SimpleITK\.Rproj$
