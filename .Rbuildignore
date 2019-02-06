@@ -1,1 +1,5 @@
+^appveyor\.yml$
+^\.travis\.yml$
+^SimpleITK\.Rproj$
+^\.Rproj\.user$
 .circleci/
