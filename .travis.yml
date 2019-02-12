@@ -4,6 +4,10 @@ language: R
 cache: packages
 warnings_are_errors: true
 
+branches:
+  only:
+  - TravisTests
+
 os:
   - linux
   - osx
