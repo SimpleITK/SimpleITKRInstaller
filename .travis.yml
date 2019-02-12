@@ -45,6 +45,7 @@ script:
   - rm -f travis_wait*.log
   - PKG_TARBALL=$(ls -1t *.tar.gz | head -n 1)
   - ls
+  - export MAKEJ=3 
   - travis_wait 300 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? ;
   - rm -f travis_wait*.log
   - if [[ $CHECK_RET -ne 0 ]];
