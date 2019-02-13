@@ -4,6 +4,9 @@ language: R
 cache: packages
 warnings_are_errors: true
 
+language: c
+cache: ccache
+
 branches:
   only:
   - TravisTests
