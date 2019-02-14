@@ -1,0 +1,62 @@
+trigger:
+- master
+
+jobs:
+  - job: Linux
+    timeoutInMinutes: 0
+    cancelTimeoutInMinutes: 300
+    pool:
+      vmImage: 'Ubuntu-16.04'
+
+    steps:
+      - checkout: self
+        clean: true
+        fetchDepth: 5
+      - bash: |
+          set -x
+          if [ -n "$(System.PullRequest.SourceCommitId)" ]; then
+            git checkout $(System.PullRequest.SourceCommitId)
+          fi
+      - bash: |
+          set -x
+          sudo apt-get -y install software-properties-common
+          sudo add-apt-repository -y "deb https://cloud.r-project.org/bin/linux/ubuntu xenial/"
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+          sudo apt-get -y install r-base-dev
+        displayName: System Dependencies
+        workingDirectory: $(Agent.BuildDirectory)
+      - bash: |
+          set -x
+          mkdir Rlibs
+          R -e 'install.packages("devtools", repo="http://cloud.r-project.org/")' 
+        displayName: 'Intall R packages'
+        workingDirectory: $(Agent.BuildDirectory)
+        env: 
+          R_LIBS: $(Agent.BuildDirectory)/Rlibs
+      - script: sudo python -m pip install ninja
+        displayName: 'Install ninja dependency'
+      - bash: |
+          set -x
+          c++ --version
+          cmake --version
+          R -e "devtools::install(c('${BUILD_SOURCESDIRECTORY'), args=c('--configure-vars="MAKEJ=4"'))"
+        displayName: Build and test
+        env:
+          R_LIBS: $(Agent.BuildDirectory)/Rlibs
+          ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
+        workingDirectory: $(Agent.BuildDirectory)
+  - job: macOS
+    timeoutInMinutes: 0
+    cancelTimeoutInMinutes: 300
+    pool:
+      vmImage: 'macOS-10.13'
+
+    steps:
+      - checkout: self
+        clean: true
+        fetchDepth: 5
+      - bash: |
+          set -x
+          if [ -n "$(System.PullRequest.SourceCommitId)" ]; then
+            git checkout $(System.PullRequest.SourceCommitId)
+          fi
