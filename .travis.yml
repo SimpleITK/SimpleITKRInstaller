@@ -1,11 +1,16 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
-cache: packages
+cache:
+  packages: true
+  directories:
+  - ~/.ccache
+  
 warnings_are_errors: true
 
-language: c
-cache: ccache
+install:
+  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install ccache; export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
+  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then export PATH="/usr/lib/ccache:$PATH"; fi
 
 branches:
   only:
@@ -39,7 +44,6 @@ before_install:
   - x=`cmake_setup`; echo "${x}"; eval ${x};
   - cmake --version  
   - rhome=`R RHOME`; echo ${rhome}; ls ${rhome};
-  - travis_run_cache 
 
 script:
   # - source ~/.R/Makevars
