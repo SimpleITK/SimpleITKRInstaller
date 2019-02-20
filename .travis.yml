@@ -69,3 +69,4 @@ after_success:
 
 after_failure:
   - dump_logs
+  - cat SimpleITK.Rcheck/00install.out
