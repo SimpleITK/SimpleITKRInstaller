@@ -54,6 +54,7 @@ script:
   - ls
   - export MAKEJ=3 
   - travis_wait 49 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? ;
+  - cat travis_wait*.log
   - rm -f travis_wait*.log
   - if [[ $CHECK_RET -ne 0 ]];
     then
