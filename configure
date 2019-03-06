@@ -52,7 +52,6 @@ mkdir -p SITK
         -DWRAP_R=ON \
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=OFF \
-	-DBUILD_SHARED_LIBS=ON \
 	-DR_COMMAND=${RCALL} \
         ../SimpleITK/SuperBuild/ ||
     exit 1
