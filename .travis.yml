@@ -29,6 +29,7 @@ env:
     - DISPLAY=:99.0
     - R_CHECK_ARGS="--as-cran --install-args=--build"
     - WARNINGS_ARE_ERRORS=1 
+    - MAKEJ=2
 
 before_install:
   - ulimit -n 2048
@@ -52,7 +53,9 @@ script:
   - rm -f travis_wait*.log
   - PKG_TARBALL=$(ls -1t *.tar.gz | head -n 1)
   - ls
-  - export MAKEJ=2 
+
+after_success:
+  # main build in after_script so that the cache comes into effect
   - travis_wait 175 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? ;
   - cat travis_wait*.log
   - rm -f travis_wait*.log
