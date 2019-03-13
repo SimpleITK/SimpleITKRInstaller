@@ -45,6 +45,7 @@ before_install:
   - x=`cmake_setup`; echo "${x}"; eval ${x};
   - cmake --version  
   - rhome=`R RHOME`; echo ${rhome}; ls ${rhome};
+  - ccache -M 10G
 
 script:
   # - source ~/.R/Makevars
@@ -53,10 +54,7 @@ script:
   - rm -f travis_wait*.log
   - PKG_TARBALL=$(ls -1t *.tar.gz | head -n 1)
   - ls
-
-after_success:
-  # main build in after_script so that the cache comes into effect
-  - travis_wait 175 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? ;
+  - travis_wait 170 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? ;
   - cat travis_wait*.log
   - rm -f travis_wait*.log
   - if [[ $CHECK_RET -ne 0 ]];
@@ -64,7 +62,6 @@ after_success:
       echo "R CMD check failed"; 
       check_fail; 
       dump_logs; 
-      travis_terminate 1;
     fi  
   - check_warnings
 
