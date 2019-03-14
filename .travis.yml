@@ -51,6 +51,7 @@ before_install:
 
 script:
   # - source ~/.R/Makevars
+  - df -h
   - x=`export_clang_cxx`; eval ${x}
   - travis_wait 3 R CMD build ${R_BUILD_ARGS} . 
   - rm -f travis_wait*.log
@@ -60,6 +61,7 @@ script:
     then
       echo "CCache already there - attempt a real build";
       travis_wait 170 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? ;
+      travis_run_cache;
       cat travis_wait*.log;
       rm -f travis_wait*.log;
       if [[ $CHECK_RET -ne 0 ]];
@@ -71,9 +73,9 @@ script:
      else
        echo "Setting up ccache for a faster build next time";
        travis_wait 170 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}" || true;
-       travis_run_cache;
        mkdir -p $HOME/.status;
        touch $HOME/.status/cachesetup;
+       travis_run_cache;
      fi  
   - check_warnings
 
