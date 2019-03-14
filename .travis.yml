@@ -4,13 +4,16 @@ language: R
 cache:
   packages: true
   directories:
-  - ~/.ccache
-  
+  - $HOME/.ccache
+  - $HOME/.status
+
+# A status directory for storing which sort of build we have
 warnings_are_errors: true
 
 install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install ccache; export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
   - if [[ $TRAVIS_OS_NAME == "linux" ]]; then export PATH="/usr/lib/ccache:$PATH"; fi
+  - ccache -M 10G
 
 branches:
   only:
@@ -45,7 +48,6 @@ before_install:
   - x=`cmake_setup`; echo "${x}"; eval ${x};
   - cmake --version  
   - rhome=`R RHOME`; echo ${rhome}; ls ${rhome};
-  - ccache -M 10G
 
 script:
   # - source ~/.R/Makevars
@@ -54,15 +56,25 @@ script:
   - rm -f travis_wait*.log
   - PKG_TARBALL=$(ls -1t *.tar.gz | head -n 1)
   - ls
-  - travis_wait 170 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}" || true
-  - cat travis_wait*.log
-  - rm -f travis_wait*.log
-  #- if [[ $CHECK_RET -ne 0 ]];
-  #  then
-  #    echo "R CMD check failed"; 
-  #    check_fail; 
-  #    dump_logs; 
-  #  fi  
+  - if [[ -e $HOME/.status/cachesetup ]];
+    then
+      echo "CCache already there - attempt a real build"
+      travis_wait 170 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? 
+      cat travis_wait*.log
+      rm -f travis_wait*.log
+      if [[ $CHECK_RET -ne 0 ]];
+      then
+        echo "R CMD check failed"; 
+        check_fail; 
+        dump_logs; 
+      fi
+     else
+       echo "Setting up ccache for a faster build next time"
+       travis_wait 170 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}" || true
+       travis_run_cache
+       mkdir -p $HOME/.status
+       touch $HOME/.status/cachesetup
+     fi  
   - check_warnings
 
 after_success:
