@@ -13,6 +13,7 @@ install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install ccache; export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
   - if [[ $TRAVIS_OS_NAME == "linux" ]]; then export PATH="/usr/lib/ccache:$PATH"; fi
   - ccache -M 5G
+  - ccache -s
 
 branches:
   only:
@@ -34,7 +35,6 @@ env:
     - MAKEJ=2
 
 before_install:
-  - ccache -s
   - ulimit -n 2048
   - export PROJ_DIR=`basename $PWD`    
   - fname=travis_helpers.sh
