@@ -13,7 +13,7 @@ warnings_are_errors: true
 install:
   - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install ccache; export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
   - if [[ $TRAVIS_OS_NAME == "linux" ]]; then export PATH="/usr/lib/ccache:$PATH"; fi
-  - ccache -M 10G
+  - ccache -M 5G
 
 branches:
   only:
@@ -35,6 +35,7 @@ env:
     - MAKEJ=2
 
 before_install:
+  - ccache -s
   - ulimit -n 2048
   - export PROJ_DIR=`basename $PWD`    
   - fname=travis_helpers.sh
@@ -52,12 +53,14 @@ before_install:
 script:
   # - source ~/.R/Makevars
   - df -h
+  - ccache -s
   - x=`export_clang_cxx`; eval ${x}
   - travis_wait 3 R CMD build ${R_BUILD_ARGS} . 
   - rm -f travis_wait*.log
   - PKG_TARBALL=$(ls -1t *.tar.gz | head -n 1)
   - ls
-  - if [[ -e $HOME/.status/cachesetup ]];
+  - |
+    if [[ -e $HOME/.status/cachesetup ]];
     then
       echo "CCache already there - attempt a real build";
       travis_wait 170 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"; CHECK_RET=$? ;
@@ -76,6 +79,7 @@ script:
        mkdir -p $HOME/.status;
        touch $HOME/.status/cachesetup;
        travis_run_cache;
+       travis_terminate 1;
      fi  
   - check_warnings
 
