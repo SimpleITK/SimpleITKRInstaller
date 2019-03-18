@@ -67,6 +67,8 @@ jobs:
           curl -L https://cran.cnr.berkeley.edu/bin/macosx/R-3.5.2.pkg -o R.pkg
           sudo installer -pkg R.pkg -target /
           mkdir $(Agent.WorkFolder)/Rlibs
+
+          R -e "install.packages('https://cran.r-project.org/bin/macosx/el-capitan/contrib/3.5/git2r_0.24.0.tgz', lib=c('${R_LIBS}'), repo=NULL)"
           R -e "install.packages('devtools', lib=c('${R_LIBS}'), repo='http://cloud.r-project.org/')"
         displayName: 'Intall R and packages'
         workingDirectory: $(Agent.BuildDirectory)
