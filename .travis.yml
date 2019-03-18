@@ -1,0 +1,87 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+cache:
+  timeout: 1000
+  packages: true
+  directories:
+  - $HOME/.ccache
+
+# A status directory for storing which sort of build we have
+warnings_are_errors: true
+
+install:
+  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew install ccache; export PATH="/usr/local/opt/ccache/libexec:$PATH"; fi
+  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then export PATH="/usr/lib/ccache:$PATH"; fi
+  - ccache -M 5G
+  - ccache -s
+
+branches:
+  only:
+  - TravisTests
+
+os:
+  - linux
+  - osx
+osx_image: xcode9 
+
+
+env:
+  global: 
+    - RGL_USE_NULL=TRUE
+    - PROJECT_NAME=neuroconductor
+    - DISPLAY=:99.0
+    - R_CHECK_ARGS="--as-cran --install-args=--build"
+    - WARNINGS_ARE_ERRORS=1 
+    - MAKEJ=2
+
+before_install:
+  - ulimit -n 2048
+  - export PROJ_DIR=`basename $PWD`    
+  - fname=travis_helpers.sh
+  - wget -O ${fname} http://bit.ly/travis_helpers
+  - cat ${fname}; source ${fname}; rm ${fname}  
+  - cat DESCRIPTION
+  - export PACKAGE_NAME=`package_name`
+  - echo "Package Name is $PACKAGE_NAME"
+  - export cmake_version="3.11"
+  - cmake --version
+  - x=`cmake_setup`; echo "${x}"; eval ${x};
+  - cmake --version  
+  - rhome=`R RHOME`; echo ${rhome}; ls ${rhome};
+
+script:
+  # - source ~/.R/Makevars
+  - df -h
+  - ccache -s
+  - x=`export_clang_cxx`; eval ${x}
+  - travis_wait 3 R CMD build ${R_BUILD_ARGS} . 
+  - rm -f travis_wait*.log
+  - PKG_TARBALL=$(ls -1t *.tar.gz | head -n 1)
+  - ls
+  - |
+      ## Force the pipe to succeed so that we can save the cache
+      travis_wait 170 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}" || true
+      ## Now record the status of the first part of the pipe
+      CHECK_RET=${PIPESTATUS[0]}
+      ## Save the cache
+      echo $CHECK_RET;
+      ccache -s;
+      travis_run_cache;
+      ## Now check the return values from the check
+      cat travis_wait*.log;
+      rm -f travis_wait*.log;
+      if [[ $CHECK_RET -ne 0 ]];
+      then
+        echo "R CMD check failed"; 
+      #  check_fail; 
+        dump_logs; 
+      fi
+  - check_warnings
+
+after_success:
+  - dump_logs
+
+after_failure:
+  - dump_logs
+  - cat SimpleITK.Rcheck/00install.out

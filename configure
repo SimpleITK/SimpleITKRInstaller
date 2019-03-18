@@ -41,7 +41,7 @@ mkdir -p SITK
 (
     cd SITK &&
     [ -d SimpleITK ] ||
-      ( git clone  ${SimpleITKGit} &&
+      ( git clone --depth=1 --branch ${SITKTAG} ${SimpleITKGit} &&
           cd SimpleITK &&
           git checkout  ${SITKTAG} ) || exit 1
 
@@ -52,6 +52,7 @@ mkdir -p SITK
         -DWRAP_R=ON \
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=OFF \
+	-DR_COMMAND=${RCALL} \
         ../SimpleITK/SuperBuild/ ||
     exit 1
 
@@ -60,4 +61,5 @@ mkdir -p SITK
     # Use R to do the move to avoid system specific issues.
     ${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
     exit 1
+    rm -f ${PKGBASED}/sitkmove.R
 )
