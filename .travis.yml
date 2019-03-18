@@ -73,7 +73,7 @@ script:
       if [[ $CHECK_RET -ne 0 ]];
       then
         echo "R CMD check failed"; 
-        check_fail; 
+      #  check_fail; 
         dump_logs; 
       fi
   - check_warnings
