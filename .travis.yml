@@ -61,17 +61,18 @@ script:
   - ls
   - |
       ## Force the pipe to succeed so that we can save the cache
-      travis_wait 100 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}" || true
+      ## The variable below is my marker about build status
+      FIRSTBUILD=0
+      travis_wait 100 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}" || FIRSTBUILD=1
       ## Now record the status of the first part of the pipe
-      CHECK_RET=${PIPESTATUS[0]}
+      echo "Build status $FIRSTBUILD";
       ## Save the cache
-      echo $CHECK_RET;
       ccache -s;
       travis_run_cache;
       ## Now check the return values from the check
       cat travis_wait*.log;
       rm -f travis_wait*.log;
-      if [[ $CHECK_RET -ne 0 ]];
+      if [[ $FIRSTBUILD -ne 0 ]];
       then
         echo "R CMD check failed"; 
       #  check_fail; 
