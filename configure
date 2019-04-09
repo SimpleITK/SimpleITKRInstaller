@@ -41,7 +41,7 @@ mkdir -p SITK
 (
     cd SITK &&
     [ -d SimpleITK ] ||
-      ( git clone --depth=1 --branch ${SITKTAG} ${SimpleITKGit} &&
+      ( git clone ${SimpleITKGit} &&
           cd SimpleITK &&
           git checkout  ${SITKTAG} ) || exit 1
 
