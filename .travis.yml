@@ -60,17 +60,24 @@ script:
   - PKG_TARBALL=$(ls -1t *.tar.gz | head -n 1)
   - ls
   - |
-      ## Force the pipe to succeed so that we can save the cache
-      ## The variable below is my marker about build status
-      FIRSTBUILD=0
-      travis_wait 10 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}" #|| FIRSTBUILD=1
+      travis_wait 120 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"
       RCMDCHECKSTATUS=$?
       ## Now record the status of the first part of the pipe
-      echo "Build status $FIRSTBUILD, check $RCMDCHECKSTATUS";
+      echo "TRAVIS_WAIT exit status: $RCMDCHECKSTATUS";
       ## Save the cache
       ccache -s;
       travis_run_cache;
       ## Now check the return values from the check
+
+      if [[ $RCMDCHECKSTATUS -eq 137 ]];
+      then
+         echo "Compilation timed out - try again to see if cache is sufficient"
+      elif [[ $RCMDCHECKSTATUS -eq 0 ]] ;
+      then
+         echo "Check appears to have succeeded"
+      else
+         echo "Some other failure: $RCMDCHECKSTATUS"
+      fi
       #cat travis_wait*.log;
       #rm -f travis_wait*.log;
       #if [[ $FIRSTBUILD -ne 0 ]];
