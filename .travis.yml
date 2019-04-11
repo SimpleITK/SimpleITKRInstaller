@@ -2,7 +2,7 @@
 
 language: R
 cache:
-  timeout: 1000
+  timeout: 10000
   packages: true
   directories:
   - $HOME/.ccache
