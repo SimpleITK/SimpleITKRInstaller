@@ -62,6 +62,7 @@ script:
   - |
       ## Check whether we have a decent sized cache
       ## so it can be warmed up
+      ccache -s
       CSIZE=$(du -s ~/.ccache/ | awk '{print $1}')
       if [[ ${CSIZE} -lt 800000 ]] ; then
          travis_wait 20 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"
@@ -89,7 +90,7 @@ script:
          ## Now check the return values from the check
          if [[ $RCMDCHECKSTATUS -eq 137 ]];
          then
-           echo "Compilation timed out - try again to see if cache is sufficient"
+           echo "Compilation timed out despite some caching"
          elif [[ $RCMDCHECKSTATUS -eq 0 ]] ;
          then
            echo "Check appears to have succeeded"
