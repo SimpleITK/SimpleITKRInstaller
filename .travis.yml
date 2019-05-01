@@ -62,14 +62,14 @@ script:
   - |
       ## Check whether we have a decent sized cache
       ## so it can be warmed up
-      CSIZE=(du -s ~/.ccache/ | awk '{print $1}')
-      if [ ${CSIZE} -lt 800000 ] ; then
-      	 travis_wait 20 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"
-      	 RCMDCHECKSTATUS=$?
-      	 ## Now record the status of the first part of the pipe
-      	 echo "TRAVIS_WAIT exit status: $RCMDCHECKSTATUS";
-      	 ## Save the cache
-	 travis_run_cache;
+      CSIZE=$(du -s ~/.ccache/ | awk '{print $1}')
+      if [[ ${CSIZE} -lt 800000 ]] ; then
+         travis_wait 20 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"
+         RCMDCHECKSTATUS=$?
+         ## Now record the status of the first part of the pipe
+         echo "TRAVIS_WAIT exit status: $RCMDCHECKSTATUS";
+         ## Save the cache
+         travis_run_cache;
          ## Now check the return values from the check
          if [[ $RCMDCHECKSTATUS -eq 137 ]];
          then
@@ -83,9 +83,9 @@ script:
       else
          ## attempting a real build
          travis_wait 160 R CMD check ${R_CHECK_ARGS} "${PKG_TARBALL}"
-      	 RCMDCHECKSTATUS=$?
-      	 ## Now record the status of the first part of the pipe
-      	 echo "TRAVIS_WAIT exit status: $RCMDCHECKSTATUS";
+         RCMDCHECKSTATUS=$?
+         ## Now record the status of the first part of the pipe
+         echo "TRAVIS_WAIT exit status: $RCMDCHECKSTATUS";
          ## Now check the return values from the check
          if [[ $RCMDCHECKSTATUS -eq 137 ]];
          then
@@ -96,7 +96,7 @@ script:
          else
            echo "Some other failure: $RCMDCHECKSTATUS"
          fi
-      fi	 
+      fi         
       #cat travis_wait*.log;
       #rm -f travis_wait*.log;
       #if [[ $FIRSTBUILD -ne 0 ]];
