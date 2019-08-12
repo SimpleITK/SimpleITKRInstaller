@@ -27,7 +27,7 @@ jobs:
              R -e 'install.packages("devtools", repo="http://cloud.r-project.org/")'
       - run:
           name: Build SimpleITK R Package
-          no_output_timeout: 20.0m
+          no_output_timeout: 30.0m
           environment:
              MAKEJ: 4
              RTESTON: ON
