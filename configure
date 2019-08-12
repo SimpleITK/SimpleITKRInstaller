@@ -20,7 +20,7 @@ export RCALL
 CC="$(${RCALL} CMD config CC)"
 CXX="$(${RCALL} CMD config CXX)"
 CFLAGS="$(${RCALL} CMD config CFLAGS)"
-CXXFLAGS="$(${RCALL} CMD config CXX1XFLAGS)"
+CXXFLAGS="$(${RCALL} CMD config CXX11FLAGS)"
 CPPFLAGS="$(${RCALL} CMD config CPPFLAGS)"
 export CXX
 export CC
