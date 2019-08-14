@@ -7,7 +7,7 @@
 # Requires git and cmake
 #
 export SimpleITKGit=https://github.com/SimpleITK/SimpleITK
-export SITKTAG=v1.2.0
+export SITKTAG=v1.2.1
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
@@ -20,7 +20,7 @@ export RCALL
 CC="$(${RCALL} CMD config CC)"
 CXX="$(${RCALL} CMD config CXX)"
 CFLAGS="$(${RCALL} CMD config CFLAGS)"
-CXXFLAGS="$(${RCALL} CMD config CXX1XFLAGS)"
+CXXFLAGS="$(${RCALL} CMD config CXX11FLAGS)"
 CPPFLAGS="$(${RCALL} CMD config CPPFLAGS)"
 export CXX
 export CC
@@ -52,6 +52,7 @@ mkdir -p SITK
         -DWRAP_R=ON \
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=OFF \
+        -DCMAKE_BUILD_TYPE=MinSizeRel \
         ../SimpleITK/SuperBuild/ ||
     exit 1
 
