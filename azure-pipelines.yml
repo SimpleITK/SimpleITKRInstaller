@@ -20,7 +20,6 @@ jobs:
         displayName: GitCheckout
       - bash: |
           set -x
-          mingw-get install wget
-          wget https://cloud.r-project.org/bin/windows/base/R-3.6.1-win.exe
-          wget https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe
+          curl https://cloud.r-project.org/bin/windows/base/R-3.6.1-win.exe -o R-3.6.1-win.exe
+          curl https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe -o Rtools35.exe
         displayName: RStuff
