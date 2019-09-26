@@ -17,9 +17,9 @@ jobs:
           if [ -n "$(System.PullRequest.SourceCommitId)" ]; then
             git checkout $(System.PullRequest.SourceCommitId)
           fi
-	displayName: GitCheckout
+        displayName: GitCheckout
       - bash: |
           set -x
-	  wget https://cloud.r-project.org/bin/windows/base/R-3.6.1-win.exe
-	  wget https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe
-	displayName: RStuff
+          wget https://cloud.r-project.org/bin/windows/base/R-3.6.1-win.exe
+          wget https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe
+        displayName: RStuff
