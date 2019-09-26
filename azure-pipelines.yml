@@ -1,33 +1,26 @@
+
+
 trigger:
 - master
 
-resources:
-  repositories:
-    - repository: r-azure-pipelines
-      type: github
-      name: r-lib/r-azure-pipelines
-      endpoint: r-lib
-
-parameters:
-  R_LIBS_USER: '$(Agent.BuildDirectory)/R/library'
-  CRAN: 'https://cloud.r-project.org'
-  coverage: true
-  env: {}
-  
 jobs:
   - job: Windows
     timeoutInMinutes: 0
     cancelTimeoutInMinutes: 10
-    variables:
-      CRAN: ${{parameters.CRAN}}
-      R_LIBS_USER: ${{parameters.R_LIBS_USER}}
-      CI: true
-      ${{ insert }}: ${{ parameters.env }}
     pool:
       vmImage: 'windows-latest'
-
+# r installation from https://github.com/r-lib/r-azure-pipelines/
     steps:
-      - template: templates/r-setup-windows.yml
+      - pwsh: |
+          choco install r.project -y --no-progress
+          Invoke-WebRequest "https://github.com/hannesmuehleisen/choco-rtools/raw/master/rtools.3.5.0.nupkg" -OutFile "..\rtools.3.5.0.nupkg"
+          choco install rtools -s ..\rtools.3.5.0.nupkg -f -y --no-progress
+          # Set the timezone
+          tzutil /s "GMT Standard Time"
+        displayName: 'Installing R'
+      - pwsh: |
+          Write-Host "##vso[task.setvariable variable=PATH]C:\Rtools\bin;C:\Rtools\mingw_64\bin;${env:PATH};C:\Progra~1\R\R-3.6.1\bin"
+        displayName: 'Setting PATH'
       - checkout: self
         clean: true
         fetchDepth: 5
