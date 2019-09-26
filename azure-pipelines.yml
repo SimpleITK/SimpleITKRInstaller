@@ -17,8 +17,9 @@ jobs:
           if [ -n "$(System.PullRequest.SourceCommitId)" ]; then
             git checkout $(System.PullRequest.SourceCommitId)
           fi
-        displayName: Build and test
-        env:
-          R_LIBS: $(Agent.WorkFolder)/Rlibs
-          ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
-        workingDirectory: $(Agent.BuildDirectory)
+	displayName: GitCheckout
+      - bash: |
+          set -x
+	  wget https://cloud.r-project.org/bin/windows/base/R-3.6.1-win.exe
+	  wget https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe
+	displayName: RStuff
