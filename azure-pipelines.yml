@@ -18,7 +18,7 @@ jobs:
             git checkout $(System.PullRequest.SourceCommitId)
           fi
         displayName: GitCheckout
-      - shell: |
+      - bash: |
           set -x
           mingw-get install wget
           wget https://cloud.r-project.org/bin/windows/base/R-3.6.1-win.exe
