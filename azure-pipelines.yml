@@ -1,14 +1,33 @@
 trigger:
 - master
 
+resources:
+  repositories:
+    - repository: r-azure-pipelines
+      type: github
+      name: r-lib/r-azure-pipelines
+      endpoint: r-lib
+
+parameters:
+  R_LIBS_USER: '$(Agent.BuildDirectory)/R/library'
+  CRAN: 'https://cloud.r-project.org'
+  coverage: true
+  env: {}
+  
 jobs:
   - job: Windows
     timeoutInMinutes: 0
-    cancelTimeoutInMinutes: 300
+    cancelTimeoutInMinutes: 10
+    variables:
+      CRAN: ${{parameters.CRAN}}
+      R_LIBS_USER: ${{parameters.R_LIBS_USER}}
+      CI: true
+      ${{ insert }}: ${{ parameters.env }}
     pool:
       vmImage: 'windows-latest'
 
     steps:
+      - template: templates/r-setup-windows.yml
       - checkout: self
         clean: true
         fetchDepth: 5
@@ -18,9 +37,4 @@ jobs:
             git checkout $(System.PullRequest.SourceCommitId)
           fi
         displayName: GitCheckout
-      - bash: |
-          set -x
-          curl https://cloud.r-project.org/bin/windows/base/R-3.6.1-win.exe -o R-3.6.1-win.exe
-          curl https://cloud.r-project.org/bin/windows/Rtools/Rtools35.exe -o Rtools35.exe
-          ./R-3.6.1-win.exe /DIR="c:\Program Files\R" /GROUP="R" /COMPONENTS="main,x86_64,translations"
-        displayName: RStuff
+
