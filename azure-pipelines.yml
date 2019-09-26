@@ -32,6 +32,13 @@ jobs:
           fi
         displayName: GitCheckout
       - bash: |
+          Rscript -e "install.packages(c('devtools'), lib=c('${R_LIBS}'), repo='http://cloud.r-project.org/')"
+        displayName: 'Intall R packages'
+        workingDirectory: $(Agent.BuildDirectory)
+        env:
+          R_LIBS: $(Agent.WorkFolder)/Rlibs
+
+      - bash: |
           set -x
           c++ --version
           cmake --version
