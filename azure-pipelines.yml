@@ -15,6 +15,7 @@ jobs:
           choco install r.project -y --no-progress
           Invoke-WebRequest "https://github.com/hannesmuehleisen/choco-rtools/raw/master/rtools.3.5.0.nupkg" -OutFile "..\rtools.3.5.0.nupkg"
           choco install rtools -s ..\rtools.3.5.0.nupkg -f -y --no-progress
+          choco install ninja
           # Set the timezone
           tzutil /s "GMT Standard Time"
         displayName: 'Installing R'
@@ -30,4 +31,17 @@ jobs:
             git checkout $(System.PullRequest.SourceCommitId)
           fi
         displayName: GitCheckout
+      - bash: |
+          set -x
+          c++ --version
+          cmake --version
+          which R
+          R --version
+          R -e "devtools::install(c('$(Build.SourcesDirectory)'), lib=c('${R_LIBS}'), args=c('--configure-vars="MAKEJ=2"'))"
+          df -h
+        displayName: Build and test
+        env:
+          R_LIBS: $(Agent.WorkFolder)/Rlibs
+          ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
+        workingDirectory: $(Agent.BuildDirectory)
 
