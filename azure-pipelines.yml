@@ -41,7 +41,7 @@ jobs:
           cmake --version
           which R
           R --version
-          R -e "devtools::install(c('$(Build.SourcesDirectory)'), lib=c('${R_LIBS}'), args=c('--configure-vars="MAKEJ=2"'))"
+          R -e "withr::with_libpaths(c('${R_LIBS}'), devtools::install(c('$(Build.SourcesDirectory)'), args=c('--configure-vars=MAKEJ=2')))"
         displayName: Build and test
         env:
           R_LIBS: $(Agent.WorkFolder)/Rlibs
