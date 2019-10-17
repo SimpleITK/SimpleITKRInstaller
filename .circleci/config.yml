@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: circleci/python:2.7
     working_directory: ~/
-    resource_class: large
+    resource_class: medium
     environment:
       R_LIBS: /home/circleci/Rlibs
       ExternalData_OBJECT_STORES: /home/circleci/.ExternalData
@@ -29,9 +29,9 @@ jobs:
           name: Build SimpleITK R Package
           no_output_timeout: 30.0m
           environment:
-             MAKEJ: 4
+             MAKEJ: 2
              RTESTON: ON
              ITK_GLOBAL_DEFAULT_NUMBER_OF_THREAD: 2
           command: |
-             R -e "devtools::install(c('/home/circleci/SimpleITKRInstaller'), args=c('--configure-vars="MAKEJ=4"'))"
+             R -e "devtools::install(c('/home/circleci/SimpleITKRInstaller'), args=c('--configure-vars=MAKEJ=2'))"
     
