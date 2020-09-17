@@ -1,6 +1,6 @@
 
 # SimpleITKRInstaller
-[![CircleCI](https://circleci.com/gh/SimpleITK/SimpleITKRInstaller.svg?style=shield)](https://circleci.com/gh/SimpleITK/SimpleITKRInstaller)   [![Build Status](https://dev.azure.com/SimpleITK-DevOps/SimpleITK/_apis/build/status/SimpleITK.SimpleITKRInstaller?branchName=master)](https://dev.azure.com/SimpleITK-DevOps/SimpleITK/_build/latest?definitionId=6&branchName=master)
+[![Build Status](https://dev.azure.com/SimpleITK-DevOps/SimpleITK/_apis/build/status/SimpleITK.SimpleITKRInstaller?branchName=master)](https://dev.azure.com/SimpleITK-DevOps/SimpleITK/_build/latest?definitionId=6&branchName=master)
 
 
 A devtools based installer for SimpleITK R installer.
