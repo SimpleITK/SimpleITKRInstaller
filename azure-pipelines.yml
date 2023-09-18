@@ -19,6 +19,7 @@ jobs:
           fi
       - bash: |
           set -x
+          df -h
           sudo apt-get update
           sudo apt-get install libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh
         displayName: System Dependencies
@@ -26,6 +27,7 @@ jobs:
       - bash: |
           set -x
           mkdir ${R_LIBS}
+          df -h
           R -e "install.packages(c('git2r', 'devtools'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
         displayName: 'Intall R packages'
         env:
@@ -37,6 +39,7 @@ jobs:
           cmake --version
           which R
           R --version
+          df -h
           R -e "devtools::install(c('$(Build.SourcesDirectory)'), lib=c('${R_LIBS}'), args=c('--configure-vars="MAKEJ=2"'))"
         displayName: Build and test
         env:
