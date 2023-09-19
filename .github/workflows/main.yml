@@ -1,0 +1,50 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  R-build:
+    strategy:
+      matrix:
+        R: [ '4.3.1' ]
+        os: [ 'ubuntu-latest', 'macos-latest' ]
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.R }} ${{ matrix.os }} build
+    env:
+      R_LIBS: ${{ github.workspace }}/Rlibs
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Setup R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{ matrix.R }}
+    - name: System Dependencies
+      if: startsWith( matrix.os, 'ubuntu' )
+      run: |
+        sudo apt-get -y update &&
+        sudo apt-get install -y libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh &&
+        sudo rm -rf /var/lib/apt/lists/*
+    - name: Configuration Information
+      run: |
+        mkdir ${R_LIBS}
+        c++ --version
+        cmake --version
+        which R
+        R --version
+    - name: Install R packages
+      run: |
+        R -e "install.packages(c('git2r', 'devtools'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
+    - name: Build and test
+      run: |
+        set -x
+        R -e "devtools::install(c('.'), lib=c('${R_LIBS}'), args=c('--configure-vars="MAKEJ=2"'))"
+      env:
+        ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
