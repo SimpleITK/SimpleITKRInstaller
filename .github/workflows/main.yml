@@ -1,0 +1,43 @@
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: System Dependencies
+      run: |
+        apt-get update && \
+        apt-get install libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh && \
+        rm -rf /var/lib/apt/lists/*```
+    - name: Install R packages
+      run: |
+        mkdir ${R_LIBS}
+        df -h
+        R -e "install.packages(c('git2r', 'devtools'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"      
+      env:
+        R_LIBS: $(Agent.WorkFolder)/Rlibs
+    - name: Build and test
+      run:
+        set -x
+        c++ --version
+        cmake --version
+        which R
+        R --version
+        df -h
+        R -e "devtools::install(c('SimpleITKRInstaller'), lib=c('${R_LIBS}'), args=c('--configure-vars="MAKEJ=2"'))"
+      
+      env:
+        R_LIBS: $(Agent.WorkFolder)/Rlibs
+        ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
+    
