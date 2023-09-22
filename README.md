@@ -1,6 +1,7 @@
 
 # SimpleITKRInstaller
-[![Build Status](https://dev.azure.com/SimpleITK-DevOps/SimpleITK/_apis/build/status/SimpleITK.SimpleITKRInstaller?branchName=master)](https://dev.azure.com/SimpleITK-DevOps/SimpleITK/_build/latest?definitionId=6&branchName=master)
+
+![Build Status](https://github.com/SimpleITK/SimpleITKRInstaller/actions/workflows/main.yml/badge.svg)
 
 
 A devtools based installer for SimpleITK R installer.
