@@ -5,6 +5,11 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+  # enable manual triggering
+  schedule:
+  # run testing on the first of each month 5am ET / 9am UTC
+  - cron: '0 9 1 * *'
 
 jobs:
   R-build:
