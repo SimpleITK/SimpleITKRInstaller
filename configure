@@ -45,25 +45,25 @@ mkdir -p SITK
           cd SimpleITK &&
           git checkout  ${SITKTAG} ) || exit 1
 
+    SITK_SRC=$(pwd)/SimpleITK
+
     mkdir -p Build &&
-    cd Build &&
-    cmake \
+        cd Build &&
+        cmake \
         -DWRAP_DEFAULT=OFF\
         -DWRAP_R=ON \
         -DSimpleITK_BUILD_DISTRIBUTE=ON \
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=OFF \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
-        ../SimpleITK/SuperBuild/ ||
+        -DITK_USE_BUILD_DIR:BOOL=ON \
+        ${SITK_SRC}/SuperBuild/ ||
     exit 1
 
     echo "Parallel build using -j${MAKEJ}"
-    make -j${MAKEJ} ITK &&
-        ls -la . &&
+    make -j${MAKEJ} && \
         rm -rf ITK-build &&
-        du -d 1 . &&
-        make -j${MAKEJ} &&
     # Use R to do the move to avoid system specific issues.
     ${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
     exit 1
-)
+) || exit 1
