@@ -7,7 +7,7 @@
 # Requires git and cmake
 #
 export SimpleITKGit=https://github.com/SimpleITK/SimpleITK
-export SITKTAG=v2.3.0
+export SITKTAG=v2.4.0
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
@@ -50,6 +50,7 @@ mkdir -p SITK
     cmake \
         -DWRAP_DEFAULT=OFF\
         -DWRAP_R=ON \
+        -DSimpleITK_BUILD_DISTRIBUTE=ON \
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=OFF \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
