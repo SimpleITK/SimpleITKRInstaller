@@ -54,15 +54,12 @@ mkdir -p SITK
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=OFF \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DITK_USE_BUILD_DIR:BOOL=ON \
         ../SimpleITK/SuperBuild/ ||
     exit 1
 
     echo "Parallel build using -j${MAKEJ}"
-    make -j${MAKEJ} ITK &&
-        ls -la . &&
-        rm -rf ITK-build &&
-        du -d 1 . &&
-        make -j${MAKEJ} &&
+    make -j${MAKEJ} &&
     # Use R to do the move to avoid system specific issues.
     ${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
     exit 1
