@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         R: [ '4.3.1' ]
-        os: [ 'macos-13' ]
+        os: [ 'macos-13', 'ubuntu-latest' ]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
     env:
