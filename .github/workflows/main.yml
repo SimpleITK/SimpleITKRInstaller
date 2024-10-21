@@ -14,8 +14,9 @@ on:
 jobs:
   R-build:
     strategy:
+      fail-fast: false
       matrix:
-        R: [ '4.3.1' ]
+        R: [ '4.3.1', '4.4.1' ]
         os: [ 'macos-13', 'ubuntu-latest' ]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
