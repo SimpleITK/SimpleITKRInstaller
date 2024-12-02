@@ -4,15 +4,15 @@
 ![Build Status](https://github.com/SimpleITK/SimpleITKRInstaller/actions/workflows/main.yml/badge.svg)
 
 
-A devtools based installer for SimpleITK R installer.
+A [remotes](https://github.com/r-lib/remotes) based installer for SimpleITK in [R](https://www.r-project.org/).
 
 ```R
-devtools::install_github("SimpleITK/SimpleITKRInstaller")
+remotes::install_github("SimpleITK/SimpleITKRInstaller")
 ```
 or, turn on mutlicore compilation using
 
 ```R
-devtools::install_github("SimpleITK/SimpleITKRInstaller", args=c("--configure-vars=MAKEJ=6"))
+remotes::install_github("SimpleITK/SimpleITKRInstaller", configure.vars=c("MAKEJ=6"))
 ```
 
 Requires _cmake_ and _git_ in the path.
