@@ -46,10 +46,10 @@ jobs:
         R --version
     - name: Install R packages
       run: |
-        R -e "install.packages(c('git2r', 'devtools'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
+        R -e "install.packages(c('git2r', 'remotes'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
     - name: Build and test
       run: |
         set -x
-        R -e "devtools::install(c('.'), lib=c('${R_LIBS}'), args=c('--configure-vars="MAKEJ=2"'))"
+        R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('"MAKEJ=2"'))"
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
