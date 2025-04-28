@@ -46,7 +46,7 @@ jobs:
         R --version
     - name: Install R packages
       run: |
-        R -e "install.packages(c('git2r', 'remotes'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
+        R -e "install.packages(c('remotes'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
     - name: Build and test
       run: |
         set -x
