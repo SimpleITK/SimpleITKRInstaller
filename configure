@@ -61,7 +61,7 @@ mkdir -p SITK
     exit 1
 
     echo "Parallel build using -j${MAKEJ}"
-    make -j${MAKEJ} && \
+    make -j${MAKEJ} SimpleITK-build && \
         rm -rf ITK-build &&
     # Use R to do the move to avoid system specific issues.
     ${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
