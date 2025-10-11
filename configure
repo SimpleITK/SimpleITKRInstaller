@@ -57,6 +57,7 @@ mkdir -p SITK
         -DBUILD_TESTING=OFF \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
         -DITK_USE_BUILD_DIR:BOOL=ON \
+        -DSimpleITK_USE_ELASTIX=ON \
         ${SITK_SRC}/SuperBuild/ ||
     exit 1
 
