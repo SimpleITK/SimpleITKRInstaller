@@ -1,0 +1,94 @@
+version: 2.1
+
+parameters:
+  run_monthly_testing:
+    type: boolean
+    default: false
+
+executors:
+  linux:
+    machine:
+      image: ubuntu-2204:current
+    environment:
+      RUNNER_OS: linux
+    resource_class: large
+  macos-intel:
+    macos:
+      xcode: 15.0.0
+    environment:
+      RUNNER_OS: macos
+    resource_class: macos.x86.medium.gen2
+  macos-arm:
+    macos:
+      xcode: 15.0.0
+    environment:
+      RUNNER_OS: macos
+    resource_class: macos.m1.medium.gen1
+
+jobs:
+  r-build:
+    parameters:
+      os:
+        type: executor
+      r-version:
+        type: string
+    executor: << parameters.os >>
+    environment:
+      R_LIBS: ~/Rlibs
+      ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
+    steps:
+      - checkout
+      - run:
+          name: Install R << parameters.r-version >>
+          command: |
+            if [ "$RUNNER_OS" == "macos" ]; then
+              brew install r
+            elif [ "$RUNNER_OS" == "linux" ]; then
+              sudo apt-get -y update
+              sudo apt-get install -y software-properties-common dirmngr
+              wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+              sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+              sudo apt-get update
+              sudo apt-get install -y r-base
+            fi
+      - run:
+          name: System Dependencies
+          command: |
+            if [ "$RUNNER_OS" == "linux" ]; then
+              sudo apt-get -y update
+              sudo apt-get install -y libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh
+              sudo rm -rf /var/lib/apt/lists/*
+            fi
+      - run:
+          name: Configuration Information
+          command: |
+            mkdir -p ${R_LIBS}
+            c++ --version
+            cmake --version || echo "cmake not found"
+            which R
+            R --version
+      - run:
+          name: Install R packages
+          command: |
+            R -e "install.packages(c('remotes'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
+      - run:
+          name: Build and test
+          no_output_timeout: 30m
+          command: |
+            set -x
+            R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=2'))"
+
+workflows:
+  r-build-test:
+    # Runs on: push to main, pull requests to main, manual trigger, and scheduled runs
+    jobs:
+      - r-build:
+          matrix:
+            parameters:
+              r-version: ['4.4.1']
+              os: ["macos-arm"]
+          filters:
+            branches:
+              only:
+                - main
+                - /pull\/.*/  # Run on all pull request branches
