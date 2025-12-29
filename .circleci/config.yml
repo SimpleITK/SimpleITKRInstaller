@@ -12,18 +12,12 @@ executors:
     environment:
       RUNNER_OS: linux
     resource_class: large
-  macos-intel:
-    macos:
-      xcode: 15.0.0
-    environment:
-      RUNNER_OS: macos
-    resource_class: macos.x86.medium.gen2
   macos-arm:
     macos:
-      xcode: 15.0.0
+      xcode: 16.4.0
     environment:
       RUNNER_OS: macos
-    resource_class: macos.m1.medium.gen1
+    resource_class: m4pro.medium
 
 jobs:
   r-build:
@@ -41,15 +35,20 @@ jobs:
       - run:
           name: Install R << parameters.r-version >>
           command: |
+            # Install rig, R Installation Manager (https://github.com/r-lib/rig) to control installed R version
             if [ "$RUNNER_OS" == "macos" ]; then
-              brew install r
+              curl -L https://github.com/r-lib/rig/releases/download/latest/rig-macos-latest.pkg -o rig.pkg
+              sudo installer -pkg rig.pkg -target /
+              rm rig.pkg
+              rig add << parameters.r-version >>
+              rig default << parameters.r-version >>
             elif [ "$RUNNER_OS" == "linux" ]; then
-              sudo apt-get -y update
-              sudo apt-get install -y software-properties-common dirmngr
-              wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
-              sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
-              sudo apt-get update
-              sudo apt-get install -y r-base
+              curl -L https://github.com/r-lib/rig/releases/download/latest/rig-linux-latest.tar.gz -o rig.tar.gz
+              tar xzf rig.tar.gz
+              sudo mv rig /usr/local/bin/
+              rm rig.tar.gz
+              sudo rig add << parameters.r-version >>
+              sudo rig default << parameters.r-version >>
             fi
       - run:
           name: System Dependencies
