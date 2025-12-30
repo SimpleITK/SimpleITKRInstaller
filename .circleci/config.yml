@@ -28,35 +28,44 @@ jobs:
         type: string
     executor: << parameters.os >>
     environment:
-      R_LIBS: ~/Rlibs
       ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
     steps:
       - checkout
       - run:
+          name: Set environment
+          command: |
+            echo "export R_LIBS=$HOME/Rlibs" >> $BASH_ENV
+      - run:
           name: Install R << parameters.r-version >>
           command: |
+            R_VERSION="<< parameters.r-version >>"
             # Install rig, R Installation Manager (https://github.com/r-lib/rig) to control installed R version
             if [ "$RUNNER_OS" == "macos" ]; then
-              curl -L https://github.com/r-lib/rig/releases/download/latest/rig-macos-latest.pkg -o rig.pkg
-              sudo installer -pkg rig.pkg -target /
-              rm rig.pkg
-              rig add << parameters.r-version >>
-              rig default << parameters.r-version >>
+              brew tap r-lib/rig
+              brew install --cask rig
+              rig add $R_VERSION
+              # on macOS the R package is installed into a MAJOR.MINOR directory
+              # the PATCH is ignored (only one patch version supported) the
+              # architecture is added as a suffix (arm64, x86_64) to allow for
+              # installations to coexist
+              rig default "${R_VERSION%.*}-arm64"
             elif [ "$RUNNER_OS" == "linux" ]; then
-              curl -L https://github.com/r-lib/rig/releases/download/latest/rig-linux-latest.tar.gz -o rig.tar.gz
-              tar xzf rig.tar.gz
-              sudo mv rig /usr/local/bin/
-              rm rig.tar.gz
-              sudo rig add << parameters.r-version >>
-              sudo rig default << parameters.r-version >>
+              `which sudo` curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
+              `which sudo` sh -c 'echo "deb http://rig.r-pkg.org/deb rig main" > /etc/apt/sources.list.d/rig.list'
+              `which sudo` apt update
+              `which sudo` apt install r-rig
+              sudo rig add $R_VERSION
+              sudo rig default $R_VERSION
             fi
       - run:
           name: System Dependencies
           command: |
             if [ "$RUNNER_OS" == "linux" ]; then
               sudo apt-get -y update
-              sudo apt-get install -y libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh
+              sudo apt-get install -y cmake libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh
               sudo rm -rf /var/lib/apt/lists/*
+            elif [ "$RUNNER_OS" == "macos" ]; then
+              brew install cmake
             fi
       - run:
           name: Configuration Information
@@ -75,7 +84,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             set -x
-            R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=2'))"
+            R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=3'))"
 
 workflows:
   r-build-test:
@@ -84,7 +93,7 @@ workflows:
       - r-build:
           matrix:
             parameters:
-              r-version: ['4.4.1']
+              r-version: ['4.3.1', '4.4.1']
               os: ["macos-arm"]
           filters:
             branches:
