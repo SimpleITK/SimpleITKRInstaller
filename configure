@@ -8,6 +8,9 @@
 #
 export SimpleITKGit=$(Rscript -e "d <- desc::desc(file='DESCRIPTION'); urls <- strsplit(d\$get_field('URL'), ',')[[1]]; cat(trimws(urls[1]))")
 export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
+# TODO: parse SITKTAG from DESCRIPTION after new release
+# export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
+export SITKTAG='1899b2'
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
