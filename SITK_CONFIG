@@ -1,0 +1,3 @@
+# SimpleITK configuration shared between configure and configure.win
+export SimpleITKGit=https://github.com/SimpleITK/SimpleITK
+export SITKTAG=v2.5.3
