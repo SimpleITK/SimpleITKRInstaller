@@ -6,8 +6,9 @@
 #
 # Requires git and cmake
 #
-export SimpleITKGit=https://github.com/SimpleITK/SimpleITK
-export SITKTAG=v2.5.3
+
+# Load shared configuration for all OS (SimpleITKrepository URL and tag)
+source "$(dirname "$0")/SITK_CONFIG"
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
