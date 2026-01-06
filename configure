@@ -6,8 +6,8 @@
 #
 # Requires git and cmake
 #
-export SimpleITKGit=https://github.com/SimpleITK/SimpleITK
-export SITKTAG=v2.5.3
+export SimpleITKGit=$(Rscript -e "d <- desc::desc(file='DESCRIPTION'); urls <- strsplit(d\$get_field('URL'), ',')[[1]]; cat(trimws(urls[1]))")
+export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
