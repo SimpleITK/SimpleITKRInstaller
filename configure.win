@@ -1,0 +1,109 @@
+#!/usr/bin/env sh
+set -e
+
+# configure script that will fetch and build SimpleITK, then move the results
+# to somewhere that R can install. It takes a long time and uses
+# a substantial amount of disk space
+#
+# Requires rtools (https://cran.r-project.org/bin/windows/Rtools/)
+#
+
+# --- Settings ---
+# Load shared configuration for all OS (SimpleITK repository URL and tag)
+export SimpleITKGit=$(Rscript -e "d <- desc::desc(file='DESCRIPTION'); urls <- strsplit(d\$get_field('URL'), ',')[[1]]; cat(trimws(urls[1]))")
+export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
+
+PKGBASED=$(pwd)
+echo "$PKGBASED"
+
+# --- Check R_HOME and RTOOLS_HOME---
+if [ -z "$R_HOME" ]; then
+  echo "Environment variable \"R_HOME\" is not set!" 1>&2
+  exit 1
+fi
+
+if [ -z "$RTOOLS_HOME" ]; then
+  echo "Environment variable \"RTOOLS_HOME\" is not set!" 1>&2
+  exit 1
+fi
+
+export PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${PATH}"
+
+echo "R_LIBS is: ${R_LIBS}"
+c++ --version || gcc --version || echo "no c++ compiler found"
+cmake --version || echo "cmake not found"
+make --version || echo "make not found"
+R --version || echo "R not found"
+
+
+# Use Rscript on Windows
+RCALL="${R_HOME}/bin/Rscript.exe"
+export RCALL
+
+# --- Build location: short path to avoid ITK limit ---
+BUILDDIR="C:/bld"
+echo "Using short build directory: $BUILDDIR"
+mkdir -p "$BUILDDIR"
+
+# Pull compiler flags from R (optional but kept for parity)
+CC="$("${R_HOME}/bin/R.exe" CMD config CC)"
+CXX="$("${R_HOME}/bin/R.exe" CMD config CXX)"
+CFLAGS="$("${R_HOME}/bin/R.exe" CMD config CFLAGS)"
+CXXFLAGS="$("${R_HOME}/bin/R.exe" CMD config CXX11FLAGS)"
+CPPFLAGS="$("${R_HOME}/bin/R.exe" CMD config CPPFLAGS)"
+export CC CXX CFLAGS CXXFLAGS CPPFLAGS
+
+# Parallelism (default 1 if not provided)
+: "${MAKEJ:=1}"
+export MAKEJ
+
+# --- Build in SITK directory ---
+(
+  cd "$BUILDDIR"
+
+  if [ ! -d SimpleITK ]; then
+    git clone "$SimpleITKGit"
+    cd SimpleITK
+    git checkout "$SITKTAG"
+  else
+    cd SimpleITK
+    git fetch --tags
+    git checkout "$SITKTAG"
+  fi
+
+  SITK_SRC="$(pwd)"
+
+  mkdir -p ../Build
+  cd ../Build
+
+  echo "Path:"
+  echo $PWD
+  
+  # Configure with Unix Makefiles (Rtools toolchain)
+  cmake -G "Unix Makefiles" \
+    -DWRAP_DEFAULT=OFF \
+    -DWRAP_R=ON \
+    -DSimpleITK_BUILD_DISTRIBUTE=ON \
+    -DBUILD_EXAMPLES=OFF \
+    -DBUILD_TESTING=OFF \
+    -DITK_SKIP_PATH_LENGTH_CHECK=ON \
+    -DCMAKE_BUILD_TYPE=MinSizeRel \
+    -DITK_USE_BUILD_DIR:BOOL=ON \
+    -DCMAKE_C_FLAGS="-DHAVE_POSIX_MEMALIGN=0" \
+    -DCMAKE_CXX_FLAGS="-DHAVE_POSIX_MEMALIGN=0" \
+    ${ADDITIONAL_SITK_MODULES} \
+    "${BUILDDIR}/SimpleITK/SuperBuild/"
+
+  echo "Parallel build using -j${MAKEJ}"
+  echo $PWD
+  # Build the specific target with parallel jobs
+  cmake --build . --target SimpleITK-build -- -j"${MAKEJ}"
+
+  # Remove ITK-build to save space (if present)
+  [ -d ITK-build ] && rm -rf ITK-build
+
+  # Move wrapped R package into the package root using R
+  "${RCALL}" -f "${PKGBASED}/sitkmove.R" --args \
+    "SimpleITK-build/Wrapping/R/Packaging/SimpleITK" \
+    "${PKGBASED}"
+)

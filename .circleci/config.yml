@@ -18,6 +18,12 @@ executors:
     environment:
       RUNNER_OS: macos
     resource_class: m4pro.medium
+  windows:
+    machine:
+      image: windows-server-2022-gui:current
+    environment:
+      RUNNER_OS: windows
+    resource_class: windows.large
 
 jobs:
   r-build:
@@ -32,8 +38,12 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Set environment
+          name: Set library for default R package installation
           command: |
+            # All packages will be installed into the directory
+            # referenced by the R_LIBS environment variable.
+            mkdir -p $HOME/Rlibs
+            ls -la ${R_LIBS}
             echo "export R_LIBS=$HOME/Rlibs" >> $BASH_ENV
       - run:
           name: Install R << parameters.r-version >>
@@ -44,18 +54,18 @@ jobs:
               brew tap r-lib/rig
               brew install --cask rig
               rig add $R_VERSION
-              # on macOS the R package is installed into a MAJOR.MINOR directory
-              # the PATCH is ignored (only one patch version supported) the
-              # architecture is added as a suffix (arm64, x86_64) to allow for
-              # installations to coexist
-              rig default "${R_VERSION%.*}-arm64"
             elif [ "$RUNNER_OS" == "linux" ]; then
               `which sudo` curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
               `which sudo` sh -c 'echo "deb http://rig.r-pkg.org/deb rig main" > /etc/apt/sources.list.d/rig.list'
               `which sudo` apt update
               `which sudo` apt install r-rig
               sudo rig add $R_VERSION
-              sudo rig default $R_VERSION
+            elif [ "$RUNNER_OS" == "windows" ]; then
+              choco install rig -y
+              export PATH="$PATH:/c/Program Files/rig"
+              rig add $R_VERSION
+              echo "export PATH=\"/c/Program Files/R/R-$R_VERSION/bin:\${PATH}\"" >> $BASH_ENV
+              echo "export R_HOME=\"/c/Program Files/R/R-$R_VERSION/\"" >> $BASH_ENV
             fi
       - run:
           name: System Dependencies
@@ -66,25 +76,31 @@ jobs:
               sudo rm -rf /var/lib/apt/lists/*
             elif [ "$RUNNER_OS" == "macos" ]; then
               brew install cmake
+            elif [ "$RUNNER_OS" == "windows" ]; then
+              choco install rtools -y
+              echo "RTOOLS_HOME=$(ls -d /c/rtools* | head -n 1)" >> $BASH_ENV
             fi
       - run:
           name: Configuration Information
           command: |
-            mkdir -p ${R_LIBS}
-            c++ --version
+            if [ "$RUNNER_OS" == "windows" ]; then
+              export PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${R_HOME}/bin:${PATH}"
+            fi
+            echo "R_LIBS is: ${R_LIBS}"
+            c++ --version || gcc --version || echo "no c++ compiler found"
             cmake --version || echo "cmake not found"
-            which R
-            R --version
+            make --version || echo "make not found"
+            R --version || echo "R not found"
       - run:
           name: Install R packages
           command: |
-            R -e "install.packages(c('remotes'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
+            R -e "install.packages(c('remotes'), repo='https://cloud.r-project.org/')"
       - run:
           name: Build and test
           no_output_timeout: 30m
           command: |
             set -x
-            R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=3'))"
+            R -e "remotes::install_git(c('.'), configure.vars=c('MAKEJ=3'))"
 
 workflows:
   r-build-test:
@@ -94,7 +110,7 @@ workflows:
           matrix:
             parameters:
               r-version: ['4.3.1', '4.4.1']
-              os: ["macos-arm"]
+              os: ["macos-arm", "windows"]
           filters:
             branches:
               only:
