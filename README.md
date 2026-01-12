@@ -2,7 +2,7 @@
 # SimpleITKRInstaller
 
 ![Build Status](https://github.com/SimpleITK/SimpleITKRInstaller/actions/workflows/main.yml/badge.svg)
-
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/SimpleITK/SimpleITKRInstaller/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/SimpleITK/SimpleITKRInstaller/tree/main)
 
 A [remotes](https://github.com/r-lib/remotes) based installer for SimpleITK in [R](https://www.r-project.org/).
 
