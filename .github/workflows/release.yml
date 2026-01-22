@@ -40,7 +40,7 @@ jobs:
         R --version
     - name: Install R packages
       run: |
-        R -e "install.packages(c('remotes', 'desc', lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
+        R -e "install.packages(c('remotes', 'desc'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
     - name: Make source
       if: runner.os == 'Linux'
       run: |
