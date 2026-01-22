@@ -52,7 +52,8 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         set -x
-        R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('"MAKEJ=2"'))"
+        R CMD build . --no-manual
+        # R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('"MAKEJ=2"'))"
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
     - name: Make binary
@@ -62,5 +63,13 @@ jobs:
         R CMD INSTALL --build -l ${R_LIBS} --configure-vars='MAKEJ=2' .
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
-        
-    
+    - name: Collect artifacts
+      shell: bash
+      run: |
+        mkdir -p dist
+        mv *.zip *.tgz *.tar.gz dist/ 2>/dev/null || true
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: r-${{ matrix.config.os }}
+        path: dist/*
