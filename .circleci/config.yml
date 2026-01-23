@@ -80,14 +80,14 @@ jobs:
             elif [ "$RUNNER_OS" == "windows" ]; then
               choco install rtools -y
               echo "RTOOLS_HOME=$(ls -d /c/rtools* | head -n 1)" >> $BASH_ENV
-              echo "RTOOLS_HOME_R=C:\\rtools45" >> $BASH_ENV
+              echo RTOOLS_HOME_R="C:\\rtools45" >> $BASH_ENV
             fi
       - run:
           name: Configuration Information
           command: |
             if [ "$RUNNER_OS" == "windows" ]; then
               export PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${R_HOME}/bin:${PATH}"
-              echo PATH="${RTOOLS_HOME_R}\usr\bin:${RTOOLS_HOME_R}\x86_64-w64-mingw32.static.posix\bin:${R_HOME_R}\bin:${PATH}" >> ~/.Renviron
+              # echo PATH="${RTOOLS_HOME_R}\usr\bin:${RTOOLS_HOME_R}\x86_64-w64-mingw32.static.posix\bin:${R_HOME_R}\bin:${PATH}" >> ~/.Renviron
             fi
             echo MAKE="${RTOOLS_HOME_R}\\usr\\bin\\make.exe" >> ~/.Renviron
             cat ~/.Renviron
