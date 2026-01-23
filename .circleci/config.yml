@@ -149,20 +149,8 @@ jobs:
           no_output_timeout: 30m
           command: |
             set -x
-            R CMD INSTALL --build -l ${R_LIBS} --configure-vars='MAKEJ=3'
+            R CMD INSTALL --build -l ${R_LIBS} --configure-vars='MAKEJ=3' . 
 workflows:
-  r-build-test:
-    # Runs on: push to main, pull requests to main, manual trigger, and scheduled runs
-    jobs:
-      - r-build:
-          matrix:
-            parameters:
-              r-version: ['4.3.1', '4.4.1']
-              os: ["macos-arm"]
-          filters:
-            branches:
-              only:
-                - release
   r-release-test:
     # Runs on: push to main, pull requests to main, manual trigger, and scheduled runs
     jobs:
