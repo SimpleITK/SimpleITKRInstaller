@@ -83,10 +83,8 @@ jobs:
       - run:
           name: Configure Rtools for R
           command: |
-            cat << 'EOF' > ~/.Renviron
-            PATH=C:/rtools45/usr/bin;C:/rtools45/x86_64-w64-mingw32.static.posix/bin;C:/Program Files/R/R-4.4.1/bin
-            MAKE=C:/rtools45/usr/bin/make.exe
-            EOF
+            echo "PATH=C:/rtools45/usr/bin;C:/rtools45/x86_64-w64-mingw32.static.posix/bin;C:/Program Files/R/R-4.4.1/bin" > ~/.Renviron
+            echo "MAKE=C:/rtools45/usr/bin/make.exe" >> ~/.Renviron
             cat ~/.Renviron
       - run:
           name: Verify make from R
