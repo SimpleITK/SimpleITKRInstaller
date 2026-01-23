@@ -62,10 +62,10 @@ jobs:
               sudo rig add $R_VERSION
             elif [ "$RUNNER_OS" == "windows" ]; then
               choco install rig -y
-              export PATH="$PATH:C:/Program Files/rig"
+              export PATH="$PATH:/c/Program Files/rig"
               rig add $R_VERSION
-              echo "export PATH=\"C:/Program Files/R/R-$R_VERSION/bin:\${PATH}\"" >> $BASH_ENV
-              echo "export R_HOME=\"C:/Program Files/R/R-$R_VERSION/\"" >> $BASH_ENV
+              echo "export PATH=\"C:Program Files/R/R-$R_VERSION/bin:\${PATH}\"" >> $BASH_ENV
+              echo "export R_HOME=\"C:Program Files/R/R-$R_VERSION/\"" >> $BASH_ENV
             fi
       - run:
           name: System Dependencies
@@ -78,7 +78,7 @@ jobs:
               brew install cmake
             elif [ "$RUNNER_OS" == "windows" ]; then
               choco install rtools -y
-              echo "RTOOLS_HOME=$(ls -d C:/rtools* | head -n 1)" >> $BASH_ENV
+              echo "RTOOLS_HOME=$(ls -d C:rtools* | head -n 1)" >> $BASH_ENV
             fi
       - run:
           name: Configuration Information
