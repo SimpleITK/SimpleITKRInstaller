@@ -1,5 +1,5 @@
 Package: SimpleITK
-Version: 2.5.3
+Version: 2.5.4
 Date: 2025-11-20
 Title: SimpleITK: A Simplified Interface to the Insight Toolkit
 Authors@R: c(person("Richard", "Beare", role = c("aut", "cre"),
