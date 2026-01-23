@@ -80,7 +80,7 @@ jobs:
             elif [ "$RUNNER_OS" == "windows" ]; then
               choco install rtools -y
               echo "RTOOLS_HOME=$(ls -d /c/rtools* | head -n 1)" >> $BASH_ENV
-              echo "RTOOLS_HOME_R=C:\rtools45" >> $BASH_ENV
+              echo "RTOOLS_HOME_R=C:\\rtools45" >> $BASH_ENV
             fi
       - run:
           name: Configuration Information
