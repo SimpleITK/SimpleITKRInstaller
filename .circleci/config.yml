@@ -145,11 +145,11 @@ jobs:
           command: |
             R -e "install.packages(c('remotes'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
       - run:
-          name: Build and test
+          name: Install and build binary
           no_output_timeout: 30m
           command: |
             set -x
-            R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=3'))"
+            R CMD INSTALL --build -l ${R_LIBS} --configure-vars='MAKEJ=3'
 workflows:
   r-build-test:
     # Runs on: push to main, pull requests to main, manual trigger, and scheduled runs
