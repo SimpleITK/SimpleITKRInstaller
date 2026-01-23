@@ -96,6 +96,8 @@ jobs:
             cmake --version || echo "cmake not found"
             make --version || echo "make not found"
             R --version || echo "R not found"
+            echo $PATH
+            which make
       - run:
           name: Install R packages
           command: |
@@ -107,7 +109,8 @@ jobs:
             set -x
             R -q -e "Sys.which('make')"
             R -q -e "system('make --version')"
-            R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=3'))"
+            R -q -e "system('echo $PATH')"
+            R -e "remotes::install_git(c('.'), configure.vars=c('MAKEJ=3'))"
   r-release:
     parameters:
       os:
