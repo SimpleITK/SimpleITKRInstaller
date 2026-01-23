@@ -181,7 +181,7 @@ workflows:
           matrix:
             parameters:
               r-version: ['4.4.1']
-              os: ["macos-arm"]
+              os: ["windows"]
           filters:
             branches:
               only:
