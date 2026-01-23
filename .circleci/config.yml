@@ -85,7 +85,6 @@ jobs:
           command: |
             set -x
             R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=3'))"
-            
   r-release:
       parameters:
       os:
@@ -157,11 +156,9 @@ jobs:
             echo "my artifact file" > /tmp/artifact-1;
             mkdir /tmp/artifacts;
             echo "my artifact files in a dir" > /tmp/artifacts/artifact-2;
-
       - store_artifacts:
           path: /tmp/artifact-1
           destination: r-<< parameters.os >>-<< parameters.r-version >>
-
       - store_artifacts:
           path: /tmp/artifacts
           
@@ -179,7 +176,6 @@ workflows:
             branches:
               only:
                 - release
-                
   r-release-test:
     jobs:
       - r-release:
