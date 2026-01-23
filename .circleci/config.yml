@@ -155,10 +155,7 @@ jobs:
           command: |
             echo "my artifact file" > /tmp/artifact-1;
             mkdir /tmp/artifacts;
-            echo "my artifact files in a dir" > /tmp/artifacts/artifact-2;
-      - store_artifacts:
-          path: /tmp/artifact-1
-          destination: r-<< parameters.os >>-<< parameters.r-version >>
+            mv *.zip *.tgz *.tar.gz /tmp/artifacts/
       - store_artifacts:
           path: /tmp/artifacts
 workflows:
@@ -167,7 +164,7 @@ workflows:
       - r-release:
           matrix:
             parameters:
-              r-version: ['4.3.1', '4.4.1']
+              r-version: ['4.4.1']
               os: ["macos-arm"]
           filters:
             branches:
