@@ -1,0 +1,74 @@
+version: 2.1
+
+executors:
+  windows:
+    machine:
+      image: windows-server-2022-gui:current
+    resource_class: windows.large
+
+jobs:
+  r-build-windows:
+    executor: windows
+
+    steps:
+      - checkout
+
+      # -------------------------------
+      # Install R
+      # -------------------------------
+      - run:
+          name: Install R 4.4.1
+          command: |
+            choco install r.project -y --version=4.4.1
+
+      # -------------------------------
+      # Install Rtools (CRITICAL)
+      # -------------------------------
+      - run:
+          name: Install Rtools
+          command: |
+            choco install rtools -y
+
+      # -------------------------------
+      # Configure R BEFORE FIRST R RUN
+      # -------------------------------
+      - run:
+          name: Configure Rtools for R
+          command: |
+            cat << 'EOF' > ~/.Renviron
+            PATH=C:/rtools45/usr/bin;C:/rtools45/x86_64-w64-mingw32.static.posix/bin;C:/Program Files/R/R-4.4.1/bin
+            MAKE=C:/rtools45/usr/bin/make.exe
+            EOF
+            cat ~/.Renviron
+
+      # -------------------------------
+      # VERIFY (this is authoritative)
+      # -------------------------------
+      - run:
+          name: Verify make from R
+          command: |
+            R -q -e "Sys.which('make')"
+            R -q -e "system2('make', '--version')"
+
+      # -------------------------------
+      # Install deps + build
+      # -------------------------------
+      - run:
+          name: Build package
+          no_output_timeout: 30m
+          command: |
+            R -e "install.packages('remotes', repos='https://cloud.r-project.org')"
+            R -e "remotes::install_git('.', configure.vars='MAKEJ=3')"
+
+workflows:
+  r-build-test:
+    jobs:
+      - r-build-windows:
+          matrix:
+            parameters:
+              r-version: ['4.4.1']
+              os: ["windows"]
+          filters:
+            branches:
+              only:
+                - release
