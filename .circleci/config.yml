@@ -85,9 +85,9 @@ jobs:
           command: |
             if [ "$RUNNER_OS" == "windows" ]; then
               export PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${R_HOME}/bin:${PATH}"
-              echo 'PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${R_HOME}/bin:${PATH}"' >> ~/.Renviron
+              echo PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${R_HOME}/bin:${PATH}" >> ~/.Renviron
             fi
-            echo 'MAKE=C:/${RTOOLS_HOME}/usr/bin/make.exe' >> ~/.Renviron
+            echo MAKE=C:/${RTOOLS_HOME}/usr/bin/make.exe >> ~/.Renviron
             cat ~/.Renviron
             echo "R_LIBS is: ${R_LIBS}"
             c++ --version || gcc --version || echo "no c++ compiler found"
