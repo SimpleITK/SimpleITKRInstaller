@@ -150,6 +150,17 @@ jobs:
           command: |
             set -x
             R CMD INSTALL --build -l ${R_LIBS} --configure-vars='MAKEJ=3'
+      - run:
+          name: Creating Dummy Artifacts
+          command: |
+            echo "my artifact file" > /tmp/artifact-1;
+            mkdir /tmp/artifacts;
+            echo "my artifact files in a dir" > /tmp/artifacts/artifact-2;
+      - store_artifacts:
+          path: /tmp/artifact-1
+          destination: r-<< parameters.os >>-<< parameters.r-version >>
+      - store_artifacts:
+          path: /tmp/artifacts
 workflows:
   r-build-test:
     # Runs on: push to main, pull requests to main, manual trigger, and scheduled runs
