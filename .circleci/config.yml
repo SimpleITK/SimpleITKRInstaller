@@ -152,7 +152,6 @@ jobs:
             R CMD INSTALL --build -l ${R_LIBS} --configure-vars='MAKEJ=3' . 
 workflows:
   r-release-test:
-    # Runs on: push to main, pull requests to main, manual trigger, and scheduled runs
     jobs:
       - r-release:
           matrix:
