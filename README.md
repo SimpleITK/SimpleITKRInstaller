@@ -26,10 +26,13 @@ Use multicore compilation and build additional modules not included in the defau
 remotes::install_github("SimpleITK/SimpleITKRInstaller", configure.vars=c("MAKEJ=6", "ADDITIONAL_SITK_MODULES=-DSimpleITK_USE_ELASTIX=ON\\  -DModule_ITKIODCMTK:BOOL=ON"))
 ```
 
+Note:
+On Linux and Mac requires [CMake](https://cmake.org/) and [git](https://git-scm.com/) in the path.
 
-Requires _cmake_ and _git_ in the path.
-
-Tested on Linux and Mac.
+On Windows requires [rtools](https://cran.r-project.org/bin/windows/Rtools/) installation and setting the `RTOOLS_HOME` environment variable. For example:
+```R
+Sys.setenv(RTOOLS_HOME = "C:/rtools45")
+```
 
 # How to Cite
 
