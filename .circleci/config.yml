@@ -85,7 +85,10 @@ jobs:
           command: |
             if [ "$RUNNER_OS" == "windows" ]; then
               export PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${R_HOME}/bin:${PATH}"
+              echo 'PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${R_HOME}/bin:${PATH}"' >> ~/.Renviron
             fi
+            echo 'MAKE=C:/${RTOOLS_HOME}/usr/bin/make.exe' >> ~/.Renviron
+            cat ~/.Renviron
             echo "R_LIBS is: ${R_LIBS}"
             c++ --version || gcc --version || echo "no c++ compiler found"
             cmake --version || echo "cmake not found"
@@ -95,14 +98,6 @@ jobs:
           name: Install R packages
           command: |
             R -e "install.packages(c('remotes'), repo='https://cloud.r-project.org/')"
-      - run:
-          name: Configure Rtools for R
-          command: |
-            echo 'PATH="${RTOOLS44_HOME}/usr/bin:${RTOOLS44_HOME}/x86_64-w64-mingw32.static.posix/bin:${PATH}"' >> ~/.Renviron
-            echo 'MAKE=C:/rtools44/usr/bin/make.exe' >> ~/.Renviron
-            cat ~/.Renviron
-          environment:
-            RTOOLS44_HOME: C:/rtools44
       - run:
           name: Build and test
           no_output_timeout: 30m
