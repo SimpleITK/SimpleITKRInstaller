@@ -59,7 +59,12 @@ jobs:
             $RtoolsBin = "C:\rtools44\usr\bin;C:\rtools44\x86_64-w64-mingw32.static.posix\bin"
             $Env:Path = "$Env:Path;$RBin;$RtoolsBin"
             $Env:Path
-            Rscript.exe  -e "remotes::install_git('.', configure.vars=c('MAKEJ=3'))"
+            where make
+            where make.exe
+            gcc --version
+            R.exe -e "Sys.which('make')"
+            R.exe -e "Sys.which('make.exe')"
+            # Rscript.exe  -e "remotes::install_git('.', configure.vars=c('MAKEJ=3'))"
 workflows:
   r-build-test:
     jobs:
