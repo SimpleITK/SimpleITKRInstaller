@@ -26,10 +26,15 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install R << parameters.r-version >> (win)
+          name: Install rig
           shell: powershell.exe
           command: |
             choco install rig -y
+      - run:
+          name: Install R << parameters.r-version >> (win)
+          shell: powershell.exe
+          command: |
+            R_VERSION="<< parameters.r-version >>"
             rig add $R_VERSION
 workflows:
   r-build-test:
