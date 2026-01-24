@@ -36,10 +36,6 @@ jobs:
           command: |
             $R_VERSION = "<< parameters.r-version >>"
             rig add $R_VERSION
-            $Env:Path
-            $RBin = "C:\Program Files\R\R-$R_VERSION\bin"
-            $Env:Path = "$Env:Path;$RBin"
-            $Env:Path
       # - run:
       #     name: Install Rtools 
       #     shell: powershell.exe
@@ -50,7 +46,12 @@ jobs:
           shell: powershell.exe
           command: |
             $Env:Path
-            C:\Program Files\R\R-4.4.1\bin\Rscript.exe -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
+            $Env:Path
+            $RBin = "C:\Program Files\R\R-$R_VERSION\bin"
+            $Env:Path = "$Env:Path;$RBin"
+            $Env:Path
+            R.exe --version
+            Rscript.exe -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
       # - run:
       #     name: Build and test
       #     shell: powershell.exe
