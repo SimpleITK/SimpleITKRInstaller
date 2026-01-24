@@ -56,7 +56,7 @@ jobs:
           command: |
             $R_VERSION = "<< parameters.r-version >>"
             $RBin = "C:\Program Files\R\R-$R_VERSION\bin"
-            $RtoolsBin = "C:\rtools44\usr\bin;C:\rtools44\x86_64-w64-mingw32.static.posix\bin"
+            $RtoolsBin = "C:\rtools45\usr\bin;C:\rtools45\x86_64-w64-mingw32.static.posix\bin"
             $Env:Path = "$Env:Path;$RBin;$RtoolsBin"
             $Env:Path
             where make
