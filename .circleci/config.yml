@@ -6,18 +6,6 @@ parameters:
     default: false
 
 executors:
-  linux:
-    machine:
-      image: ubuntu-2204:current
-    environment:
-      RUNNER_OS: linux
-    resource_class: large
-  macos-arm:
-    macos:
-      xcode: 16.4.0
-    environment:
-      RUNNER_OS: macos
-    resource_class: m4pro.medium
   windows:
     machine:
       image: windows-server-2022-gui:current
@@ -38,15 +26,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Set library for default R package installation
-          command: |
-            # All packages will be installed into the directory
-            # referenced by the R_LIBS environment variable.
-            mkdir -p $HOME/Rlibs
-            ls -la ${R_LIBS}
-            echo "export R_LIBS=$HOME/Rlibs" >> $BASH_ENV
-      - run:
           name: Install R << parameters.r-version >>
+          when: << parameters.os >> != "windows"
+          shell: powershell.exe
           command: |
             R_VERSION="<< parameters.r-version >>"
             # Install rig, R Installation Manager (https://github.com/r-lib/rig) to control installed R version
@@ -60,138 +42,13 @@ jobs:
               `which sudo` apt update
               `which sudo` apt install r-rig
               sudo rig add $R_VERSION
-            elif [ "$RUNNER_OS" == "windows" ]; then
-              choco install rig -y
-              # export PATH="$PATH:/c/Program Files/rig"
-              /c/Program Files/rig add $R_VERSION
             fi
       - run:
-          name: System Dependencies
+          name: Install R << parameters.r-version >> (win)
+          when: << parameters.os >> == "windows"
           command: |
-            if [ "$RUNNER_OS" == "linux" ]; then
-              sudo apt-get -y update
-              sudo apt-get install -y cmake libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh
-              sudo rm -rf /var/lib/apt/lists/*
-            elif [ "$RUNNER_OS" == "macos" ]; then
-              brew install cmake
-            elif [ "$RUNNER_OS" == "windows" ]; then
-              choco install rtools -y
-              # echo "RTOOLS_HOME=$(ls -d /c/rtools* | head -n 1)" >> $BASH_ENV
-              # echo RTOOLS_HOME_R="C:\\rtools45" >> $BASH_ENV
-            fi
-      - run:
-          name: Configure Rtools for R
-          command: |
-            echo "PATH=C:/rtools45/usr/bin;C:/rtools45/x86_64-w64-mingw32.static.posix/bin;C:/Program Files/R/R-4.4.1/bin" > ~/.Renviron
-            echo "MAKE=C:/rtools45/usr/bin/make.exe" >> ~/.Renviron
-            cat ~/.Renviron
-      - run:
-          name: Verify make from R
-          command: |
-            R -q -e "Sys.which('make')"
-            R -q -e "system2('make', '--version')"
-      - run:
-          name: Configuration Information
-          command: |
-            if [ "$RUNNER_OS" == "windows" ]; then
-              export PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${R_HOME}/bin:${PATH}"
-              # echo PATH="${RTOOLS_HOME_R}\usr\bin:${RTOOLS_HOME_R}\x86_64-w64-mingw32.static.posix\bin:${R_HOME_R}\bin:${PATH}" >> ~/.Renviron
-            fi
-            echo MAKE="${RTOOLS_HOME_R}\\usr\\bin\\make.exe" >> ~/.Renviron
-            cat ~/.Renviron
-            echo "R_LIBS is: ${R_LIBS}"
-            c++ --version || gcc --version || echo "no c++ compiler found"
-            cmake --version || echo "cmake not found"
-            make --version || echo "make not found"
-            R --version || echo "R not found"
-            echo $PATH
-            which make
-      - run:
-          name: Install R packages
-          command: |
-            R -e "install.packages(c('remotes'), repo='https://cloud.r-project.org/')"
-      - run:
-          name: Build and test
-          no_output_timeout: 30m
-          command: |
-            set -x
-            R -q -e "Sys.which('make')"
-            R -q -e "system('make --version')"
-            R -q -e "system('echo $PATH')"
-            R -e "remotes::install_git(c('.'), configure.vars=c('MAKEJ=3'))"
-  r-release:
-    parameters:
-      os:
-        type: executor
-      r-version:
-        type: string
-    executor: << parameters.os >>
-    environment:
-      ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
-    steps:
-      - checkout
-      - run:
-          name: Set environment
-          command: |
-            echo "export R_LIBS=$HOME/Rlibs" >> $BASH_ENV
-      - run:
-          name: Install R << parameters.r-version >>
-          command: |
-            R_VERSION="<< parameters.r-version >>"
-            # Install rig, R Installation Manager (https://github.com/r-lib/rig) to control installed R version
-            if [ "$RUNNER_OS" == "macos" ]; then
-              brew tap r-lib/rig
-              brew install --cask rig
-              rig add $R_VERSION
-              # on macOS the R package is installed into a MAJOR.MINOR directory
-              # the PATCH is ignored (only one patch version supported) the
-              # architecture is added as a suffix (arm64, x86_64) to allow for
-              # installations to coexist
-              rig default "${R_VERSION%.*}-arm64"
-            elif [ "$RUNNER_OS" == "linux" ]; then
-              `which sudo` curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
-              `which sudo` sh -c 'echo "deb http://rig.r-pkg.org/deb rig main" > /etc/apt/sources.list.d/rig.list'
-              `which sudo` apt update
-              `which sudo` apt install r-rig
-              sudo rig add $R_VERSION
-              sudo rig default $R_VERSION
-            fi
-      - run:
-          name: System Dependencies
-          command: |
-            if [ "$RUNNER_OS" == "linux" ]; then
-              sudo apt-get -y update
-              sudo apt-get install -y cmake libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh
-              sudo rm -rf /var/lib/apt/lists/*
-            elif [ "$RUNNER_OS" == "macos" ]; then
-              brew install cmake
-            fi
-      - run:
-          name: Configuration Information
-          command: |
-            mkdir -p ${R_LIBS}
-            c++ --version
-            cmake --version || echo "cmake not found"
-            which R
-            R --version
-      - run:
-          name: Install R packages
-          command: |
-            R -e "install.packages(c('remotes', 'desc'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
-      - run:
-          name: Install and build binary
-          no_output_timeout: 30m
-          command: |
-            set -x
-            R CMD INSTALL --build -l ${R_LIBS} --configure-vars='MAKEJ=3' . 
-      - run:
-          name: Creating Dummy Artifacts
-          command: |
-            echo "my artifact file" > /tmp/artifact-1;
-            mkdir /tmp/artifacts;
-            mv *.zip *.tgz *.tar.gz /tmp/artifacts/
-      - store_artifacts:
-          path: /tmp/artifacts
+            choco install rig -y
+            rig add $R_VERSION
 workflows:
   r-build-test:
     jobs:
@@ -204,14 +61,3 @@ workflows:
             branches:
               only:
                 - release
-  # r-release-test:
-  #   jobs:
-  #     - r-release:
-  #         matrix:
-  #           parameters:
-  #             r-version: ['4.4.1']
-  #             os: ["windows"]
-  #         filters:
-  #           branches:
-  #             only:
-  #               - release
