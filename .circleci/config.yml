@@ -36,6 +36,10 @@ jobs:
           command: |
             $R_VERSION = "<< parameters.r-version >>"
             rig add $R_VERSION
+      - run:
+          name: Install Rtools 
+          command: |
+            choco install rtools -y
 workflows:
   r-build-test:
     jobs:
