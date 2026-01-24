@@ -38,6 +38,7 @@ jobs:
             rig add $R_VERSION
       - run:
           name: Install Rtools 
+          shell: powershell.exe
           command: |
             choco install rtools -y
 workflows:
