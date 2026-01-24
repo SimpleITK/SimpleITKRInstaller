@@ -38,7 +38,7 @@ jobs:
             rig add $R_VERSION
             $Env:Path
             $RBin = "C:\Program Files\R\R-$R_VERSION\bin"
-            $env:Path = "$env:Path;$RBin"
+            $Env:Path = "$Env:Path;$RBin"
             $Env:Path
       # - run:
       #     name: Install Rtools 
