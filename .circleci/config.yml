@@ -45,8 +45,7 @@ jobs:
           name: Install R packages
           shell: powershell.exe
           command: |
-            $Env:Path
-            $Env:Path
+            $R_VERSION = "<< parameters.r-version >>"
             $RBin = "C:\Program Files\R\R-$R_VERSION\bin"
             $Env:Path = "$Env:Path;$RBin"
             $Env:Path
