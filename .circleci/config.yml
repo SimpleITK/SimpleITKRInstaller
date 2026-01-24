@@ -49,13 +49,13 @@ jobs:
           name: Install R packages
           shell: powershell.exe
           command: |
-            RScript.exe  -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
+            Rscript.exe  -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
       # - run:
       #     name: Build and test
       #     shell: powershell.exe
       #     no_output_timeout: 30m
       #     command: |
-      #       RScript.exe  -e "remotes::install_git('.', configure.vars=c('MAKEJ=3'))"
+      #       Rscript.exe  -e "remotes::install_git('.', configure.vars=c('MAKEJ=3'))"
 workflows:
   r-build-test:
     jobs:
