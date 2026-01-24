@@ -45,6 +45,7 @@ jobs:
           name: Install R packages
           shell: powershell.exe
           command: |
+            echo %Path%
             RScript.exe  -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
       - run:
           name: Build and test
