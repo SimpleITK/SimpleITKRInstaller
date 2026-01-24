@@ -26,26 +26,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install R << parameters.r-version >>
-          when: << parameters.os >> != "windows"
-          shell: powershell.exe
-          command: |
-            R_VERSION="<< parameters.r-version >>"
-            # Install rig, R Installation Manager (https://github.com/r-lib/rig) to control installed R version
-            if [ "$RUNNER_OS" == "macos" ]; then
-              brew tap r-lib/rig
-              brew install --cask rig
-              rig add $R_VERSION
-            elif [ "$RUNNER_OS" == "linux" ]; then
-              `which sudo` curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
-              `which sudo` sh -c 'echo "deb http://rig.r-pkg.org/deb rig main" > /etc/apt/sources.list.d/rig.list'
-              `which sudo` apt update
-              `which sudo` apt install r-rig
-              sudo rig add $R_VERSION
-            fi
-      - run:
           name: Install R << parameters.r-version >> (win)
-          when: << parameters.os >> == "windows"
+          shell: powershell.exe
           command: |
             choco install rig -y
             rig add $R_VERSION
