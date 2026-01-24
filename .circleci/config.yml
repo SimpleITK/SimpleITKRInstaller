@@ -34,7 +34,7 @@ jobs:
           name: Install R << parameters.r-version >> (win)
           shell: powershell.exe
           command: |
-            R_VERSION="<< parameters.r-version >>"
+            $R_VERSION = "<< parameters.r-version >>"
             rig add $R_VERSION
 workflows:
   r-build-test:
