@@ -43,11 +43,13 @@ jobs:
             choco install rtools -y
       - run:
           name: Install R packages
+          shell: powershell.exe
           command: |
             R -e "install.packages(c('remotes'), repo='https://cloud.r-project.org/')"
       - run:
           name: Build and test
           no_output_timeout: 30m
+          shell: powershell.exe
           command: |
             R -e "remotes::install_git(c('.'), configure.vars=c('MAKEJ=3'))"
 workflows:
