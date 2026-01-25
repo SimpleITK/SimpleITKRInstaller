@@ -55,6 +55,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             $R_VERSION = "<< parameters.r-version >>"
+            $RTOOLS_HOME = "C:\rtools45"
             $RBin = "C:\Program Files\R\R-$R_VERSION\bin"
             $RtoolsBin = "C:\rtools45\usr\bin;C:\rtools45\x86_64-w64-mingw32.static.posix\bin"
             $Env:Path = "$Env:Path;$RBin;$RtoolsBin"
