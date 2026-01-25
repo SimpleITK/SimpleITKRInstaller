@@ -90,14 +90,15 @@ export MAKEJ
     -DBUILD_TESTING=OFF \
     -DITK_SKIP_PATH_LENGTH_CHECK=ON \
     -DCMAKE_BUILD_TYPE=MinSizeRel \
-    -DITK_USE_BUILD_DIR=ON \
+    -DITK_USE_BUILD_DIR:BOOL=ON \
+    -DITK_USE_SYSTEM_GDCM=OFF
     ${ADDITIONAL_SITK_MODULES} \
-    -DITK_USE_SYSTEM_GDCM=OFF \ 
     "${BUILDDIR}/SimpleITK/SuperBuild/"
     # -DITK_USE_SYSTEM_ZLIB=ON \
     # -DITK_USE_ZLIB_NG=OFF \
     # -DCMAKE_C_FLAGS="-DHAVE_POSIX_MEMALIGN=0" \
     # -DCMAKE_CXX_FLAGS="-DHAVE_POSIX_MEMALIGN=0" \
+    
   echo "Parallel build using -j${MAKEJ}"
   echo $PWD
   # Build the specific target with parallel jobs
