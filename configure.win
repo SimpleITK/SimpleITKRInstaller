@@ -21,10 +21,13 @@ if [ -z "$R_HOME" ]; then
   exit 1
 fi
 
-if [ -z "$RTOOLS_HOME" ]; then
-  echo "Environment variable \"RTOOLS_HOME\" is not set!" 1>&2
-  exit 1
-fi
+# set RTOOLS_HOME
+export RTOOLS_HOME="$(ls -d /c/rtools* | head -n 1)" 
+echo "$RTOOLS_HOME"
+# if [ -z "$RTOOLS_HOME" ]; then
+#   echo "Environment variable \"RTOOLS_HOME\" is not set!" 1>&2
+#   exit 1
+# fi
 
 # Update PATH to include Rtools binaries
 export PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${PATH}"
