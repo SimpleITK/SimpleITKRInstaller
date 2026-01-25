@@ -51,7 +51,9 @@ jobs:
             Rscript.exe -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
       - run:
           name: System Dependencies
+          shell: bash.exe
           command: |
+            ls -d /c/rtools* | head -n 1
             echo "RTOOLS_HOME=$(ls -d /c/rtools* | head -n 1)" >> $BASH_ENV
             echo $BASH_ENV
       - run:
