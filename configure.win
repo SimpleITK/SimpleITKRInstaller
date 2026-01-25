@@ -6,7 +6,6 @@ set -e
 # a substantial amount of disk space
 #
 # Requires rtools (https://cran.r-project.org/bin/windows/Rtools/)
-#
 
 # --- Settings ---
 # Load shared configuration for all OS (SimpleITK repository URL and tag)
@@ -39,7 +38,6 @@ c++ --version || gcc --version || echo "no c++ compiler found"
 cmake --version || echo "cmake not found"
 make --version || echo "make not found"
 $RCALL --version || echo "R not found"
-
 
 # --- Build location: short path to avoid ITK limit ---
 BUILDDIR="C:/bld"

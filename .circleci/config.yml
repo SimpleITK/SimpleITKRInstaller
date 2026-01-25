@@ -50,6 +50,11 @@ jobs:
             $Env:Path = "$Env:Path;$RBin"
             Rscript.exe -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
       - run:
+          name: System Dependencies
+          command: |
+            echo "RTOOLS_HOME=$(ls -d /c/rtools* | head -n 1)" >> $BASH_ENV
+            echo $BASH_ENV
+      - run:
           name: Build and test
           shell: powershell.exe
           no_output_timeout: 30m
