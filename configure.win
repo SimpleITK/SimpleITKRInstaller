@@ -56,7 +56,7 @@ CPPFLAGS="$("${R_HOME}/bin/R.exe" CMD config CPPFLAGS)"
 export CC CXX CFLAGS CXXFLAGS CPPFLAGS
 
 # Parallelism (default 1 if not provided)
-: "${MAKEJ:=1}"
+: "${MAKEJ:=3}"
 export MAKEJ
 
 # --- Build in SITK directory ---
