@@ -85,24 +85,16 @@ export MAKEJ
   cmake -G "Unix Makefiles" \
     -DWRAP_DEFAULT=OFF \
     -DWRAP_R=ON \
+    -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
     -DSimpleITK_BUILD_DISTRIBUTE=ON \
     -DBUILD_EXAMPLES=OFF \
     -DBUILD_TESTING=OFF \
     -DITK_SKIP_PATH_LENGTH_CHECK=ON \
     -DCMAKE_BUILD_TYPE=MinSizeRel \
     -DITK_USE_BUILD_DIR:BOOL=ON \
-    -DITK_USE_SYSTEM_ZLIB:BOOL=ON \
-    -DITK_USE_SYSTEM_GDCM:BOOL=OFF \  
-    -DModule_ITKIOGDCM:BOOL=OFF \
     ${ADDITIONAL_SITK_MODULES} \
     "${BUILDDIR}/SimpleITK/SuperBuild/"
   
-  # -DCMAKE_C_FLAGS="-DHAVE_POSIX_MEMALIGN=0 -DHAVE_ALIGNED_ALLOC=0" \ # does not work
-  # -DCMAKE_CXX_FLAGS="-DHAVE_POSIX_MEMALIGN=0 -DHAVE_ALIGNED_ALLOC=0 \ # does not work
-  # -DHAVE_POSIX_MEMALIGN:BOOL=OFF \ # does not work
-  # -DITK_USE_SYSTEM_ZLIB=ON \ # does not work
-  # -DITK_USE_ZLIB_NG=OFF \ # does not work
-    
   echo "Parallel build using -j${MAKEJ}"
   echo $PWD
   # Build the specific target with parallel jobs
