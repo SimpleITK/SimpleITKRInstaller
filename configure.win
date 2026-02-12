@@ -57,7 +57,7 @@ export CC CXX CFLAGS CXXFLAGS CPPFLAGS
 
 # Parallelism (default 1 if not provided)
 if [ -z "${MAKEJ}" ] ; then
-    : "${MAKEJ:=1}"
+    : "${MAKEJ:=8}"
     export MAKEJ
 fi
 
