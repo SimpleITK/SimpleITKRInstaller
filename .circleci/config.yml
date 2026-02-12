@@ -60,7 +60,7 @@ jobs:
             $RtoolsBin = "C:\rtools45\usr\bin;C:\rtools45\x86_64-w64-mingw32.static.posix\bin"
             $Env:Path = "$Env:Path;$RBin;$RtoolsBin"
             $Env:Path
-            $MAKEJ=4
+            $MAKEJ=8
             Rscript.exe  -e "remotes::install_git('.')"
 workflows:
   r-build-test:
