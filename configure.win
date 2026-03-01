@@ -82,8 +82,8 @@ fi
 
   echo "Path:"
   echo $PWD
-  echo "R Packages directory:"
-  echo ${R_PACKAGE_DIR}
+  echo "R libraries directory:"
+  echo ${R_LIBRARIES}
   
   # Configure with Unix Makefiles (Rtools toolchain)
   cmake -G "Unix Makefiles" \
