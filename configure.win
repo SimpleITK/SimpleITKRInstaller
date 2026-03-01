@@ -82,9 +82,12 @@ fi
 
   echo "Path:"
   echo $PWD
+  echo "R Packages directory:"
+  echo ${R_PACKAGE_DIR}
   
   # Configure with Unix Makefiles (Rtools toolchain)
   cmake -G "Unix Makefiles" \
+    -DCMAKE_INSTALL_PREFIX:PATH="${R_PACKAGE_DIR}"/libs/
     -DWRAP_DEFAULT=OFF \
     -DWRAP_R=ON \
     -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
