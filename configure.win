@@ -82,14 +82,19 @@ fi
 
   echo "Path:"
   echo $PWD
-  echo "R libraries directory:"
-  echo ${R_LIBRARIES}
+  RR=$(which R)
+  R64=$(dirname "$RR")/x64/R.exe
+  R64DLL=$(dirname "$R64")/R.dll
+  echo "R directory:"
+  echo ${RR}
+  echo ${R64DLL}
   
   # Configure with Unix Makefiles (Rtools toolchain)
   cmake -G "Unix Makefiles" \
-    -DCMAKE_INSTALL_PREFIX:PATH="${R_PACKAGE_DIR}"/libs/
     -DWRAP_DEFAULT=OFF \
     -DWRAP_R=ON \
+    -DR_COMMAND="${R64}" \
+    -DR_LIBRARY_BASE="${R64DLL}" \
     -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
     -DSimpleITK_BUILD_DISTRIBUTE=ON \
     -DBUILD_EXAMPLES=OFF \
@@ -99,7 +104,7 @@ fi
     -DITK_USE_BUILD_DIR:BOOL=ON \
     ${ADDITIONAL_SITK_MODULES} \
     "${BUILDDIR}/SimpleITK/SuperBuild/"
-  
+
   echo "Parallel build using -j${MAKEJ}"
   echo $PWD
   # Build the specific target with parallel jobs
