@@ -66,7 +66,7 @@ fi
   cd "$BUILDDIR"
 
   if [ ! -d SimpleITK ]; then
-    git clone "$SimpleITKGit"
+    git clone "$SimpleITKGit$
     cd SimpleITK
     git checkout "$SITKTAG"
   else
@@ -82,19 +82,11 @@ fi
 
   echo "Path:"
   echo $PWD
-  RR=$(which R)
-  R64=$(dirname "$RR")/x64/R.exe
-  R64DLL=$(dirname "$R64")/R.dll
-  echo "R directory:"
-  echo ${RR}
-  echo ${R64DLL}
   
   # Configure with Unix Makefiles (Rtools toolchain)
   cmake -G "Unix Makefiles" \
     -DWRAP_DEFAULT=OFF \
     -DWRAP_R=ON \
-    -DR_COMMAND="${R64}" \
-    -DR_LIBRARY_BASE="${R64DLL}" \
     -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
     -DSimpleITK_BUILD_DISTRIBUTE=ON \
     -DBUILD_EXAMPLES=OFF \
