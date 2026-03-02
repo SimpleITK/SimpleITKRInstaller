@@ -18,6 +18,6 @@ Description: This package is an interface to SimpleITK, which is a simplified
 License: Apache License 2.0
 Note: The first url in the URL field below is the SimpleITK repository, and is used
      by the config script under the assumption that it is the first in the list.
-URL: https://github.com/SimpleITK/SimpleITK, https://www.simpleitk.org, https://www.itk.org
+URL: https://github.com/Artur-man/SimpleITK, https://www.simpleitk.org, https://www.itk.org
 BugReports: https://github.com/SimpleITK/SimpleITK/issues
 Maintainer: Richard Beare <Richard.Beare@ieee.org>
