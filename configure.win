@@ -69,11 +69,11 @@ fi
   if [ ! -d SimpleITK ]; then
     git clone "$SimpleITKGit"
     cd SimpleITK
-    git checkout "$SITKTAG"
+    # git checkout main
   else
     cd SimpleITK
-    git fetch --tags
-    git checkout "$SITKTAG"
+    # git fetch --tags
+    # git checkout main
   fi
 
   SITK_SRC="$(pwd)"
