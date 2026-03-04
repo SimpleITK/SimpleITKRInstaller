@@ -114,7 +114,7 @@ jobs:
       run: |
         # Rscript -e "lib <- Sys.getenv('R_LIBS'); remotes::install_git('.', lib=lib, configure.vars=c('MAKEJ=2'))"
         # Rscript.exe  -e "remotes::install_git('.')"
-        R CMD INSTALL --build --configure-vars='MAKEJ=8' .
+        Rcmd.exe INSTALL --build --configure-vars='MAKEJ=8' .
     - name: Collect artifacts
       shell: bash
       run: |
