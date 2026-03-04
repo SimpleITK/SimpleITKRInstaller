@@ -113,4 +113,15 @@ jobs:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
         # Rscript -e "lib <- Sys.getenv('R_LIBS'); remotes::install_git('.', lib=lib, configure.vars=c('MAKEJ=2'))"
-        Rscript.exe  -e "remotes::install_git('.')"
+        # Rscript.exe  -e "remotes::install_git('.')"
+        R CMD INSTALL --build --configure-vars='MAKEJ=8' .
+    - name: Collect artifacts
+      shell: bash
+      run: |
+        mkdir -p dist
+        mv *.zip *.tgz *.tar.gz dist/ 2>/dev/null || true
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: r-${{ matrix.os }}-${{ matrix.R }}
+        path: dist/*
