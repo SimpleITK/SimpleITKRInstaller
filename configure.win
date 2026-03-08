@@ -10,7 +10,7 @@ set -e
 # --- Settings ---
 # Load shared configuration for all OS (SimpleITK repository URL and tag)
 # export SimpleITKGit=$(Rscript -e "d <- desc::desc(file='DESCRIPTION'); urls <- strsplit(d\$get_field('URL'), ',')[[1]]; cat(trimws(urls[1]))")
-export SimpleITKGit="https://github.com/Artur-man/SimpleITK@release"
+export SimpleITKGit="https://github.com/Artur-man/SimpleITK"
 export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
 
 PKGBASED=$(pwd)
@@ -69,11 +69,12 @@ fi
   if [ ! -d SimpleITK ]; then
     git clone "$SimpleITKGit"
     cd SimpleITK
-    # git checkout main
+    git fetch --all
+    git checkout release
   else
     cd SimpleITK
-    # git fetch --tags
-    # git checkout main
+    git fetch --all
+    git checkout release
   fi
 
   SITK_SRC="$(pwd)"
