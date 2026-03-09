@@ -93,7 +93,7 @@ workflows:
       - r-build:
           matrix:
             parameters:
-              r-version: ['4.3.1', '4.4.1']
+              r-version: ['4.5.2']
               os: ["macos-arm"]
           filters:
             branches:
