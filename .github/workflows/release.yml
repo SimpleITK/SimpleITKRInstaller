@@ -39,6 +39,7 @@ jobs:
       _R_CHECK_FORCE_SUGGESTS_: false
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_LIBS: ${{ github.workspace }}/Rlibs
 
     strategy:
       fail-fast: false
