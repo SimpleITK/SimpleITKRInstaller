@@ -20,7 +20,7 @@ executors:
     resource_class: m4pro.medium
 
 jobs:
-  r-build:
+  r-release:
     parameters:
       os:
         type: executor
