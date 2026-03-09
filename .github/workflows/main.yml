@@ -5,7 +5,68 @@ on:
       - release
 
 jobs:
+  prepare-release:
+    name: Prepare draft release
+    runs-on: ubuntu-latest
+    outputs:
+      package: ${{ steps.meta.outputs.package }}
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+
+      - name: Read package metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE="$(Rscript -e 'x <- read.dcf("DESCRIPTION"); cat(x[1,"Package"])')"
+          VERSION="$(Rscript -e 'x <- read.dcf("DESCRIPTION"); cat(x[1,"Version"])')"
+
+          echo "package=$PACKAGE" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          PACKAGE: ${{ steps.meta.outputs.package }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
+            IS_DRAFT="$(gh api "repos/$REPO/releases/tags/$TAG" --jq '.draft')"
+
+            if [ "$IS_DRAFT" != "true" ]; then
+              echo "Release $TAG already exists and is published; refusing to overwrite it."
+              exit 1
+            fi
+
+            git tag -f "$TAG" "$SHA"
+            git push --force origin "refs/tags/$TAG"
+
+            gh release edit "$TAG" \
+              --repo "$REPO" \
+              --title "${PACKAGE} ${TAG}"
+          else
+            gh release create "$TAG" \
+              --repo "$REPO" \
+              --target "$SHA" \
+              --draft \
+              --title "${PACKAGE} ${TAG}" \
+              --notes "Automated draft release for ${PACKAGE} ${TAG}"
+          fi
+          
   R-build:
+    needs: prepare-release
     strategy:
       fail-fast: false
       matrix:
@@ -66,6 +127,7 @@ jobs:
         name: r-${{ matrix.os }}-${{ matrix.R }}
         path: dist/*
   R-build-win:
+    needs: prepare-release
     strategy:
       fail-fast: false
       matrix:
@@ -112,8 +174,6 @@ jobs:
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
-        # Rscript -e "lib <- Sys.getenv('R_LIBS'); remotes::install_git('.', lib=lib, configure.vars=c('MAKEJ=2'))"
-        # Rscript.exe  -e "remotes::install_git('.')"
         # export MAKEJ=8
         # export RTOOLS_HOME="$(ls -d /c/rtools* | head -n 1)"
         $env:MAKEJ="8"
@@ -129,3 +189,20 @@ jobs:
       with:
         name: r-${{ matrix.os }}-${{ matrix.R }}
         path: dist/*
+
+  deploy:
+    needs: R-build R-build-win
+
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
