@@ -114,8 +114,10 @@ jobs:
       run: |
         # Rscript -e "lib <- Sys.getenv('R_LIBS'); remotes::install_git('.', lib=lib, configure.vars=c('MAKEJ=2'))"
         # Rscript.exe  -e "remotes::install_git('.')"
-        export MAKEJ=8
-        export RTOOLS_HOME="$(ls -d /c/rtools* | head -n 1)" 
+        # export MAKEJ=8
+        # export RTOOLS_HOME="$(ls -d /c/rtools* | head -n 1)"
+        $env:MAKEJ="8"
+        $env:RTOOLS_HOME="C:\rtools44"  
         Rcmd.exe INSTALL --build .
     - name: Collect artifacts
       shell: bash
