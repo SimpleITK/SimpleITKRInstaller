@@ -16,19 +16,20 @@ export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPT
 PKGBASED=$(pwd)
 echo "$PKGBASED"
 
-# --- Check R_HOME and RTOOLS_HOME---
+# --- Check R_HOME ---
 if [ -z "$R_HOME" ]; then
   echo "Environment variable \"R_HOME\" is not set!" 1>&2
   exit 1
 fi
 
-# set RTOOLS_HOME
+# --- Check RTOOLS_HOME ---
 export RTOOLS_HOME="$(ls -d /c/rtools* | head -n 1)" 
-echo "$RTOOLS_HOME"
-# if [ -z "$RTOOLS_HOME" ]; then
-#   echo "Environment variable \"RTOOLS_HOME\" is not set!" 1>&2
-#   exit 1
-# fi
+if [ -z "$RTOOLS_HOME" ]; then
+  echo "Environment variable \"RTOOLS_HOME\" is not set!" 1>&2
+  exit 1
+else
+  echo "$RTOOLS_HOME"
+fi
 
 # Update PATH to include Rtools binaries
 export PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${PATH}"
@@ -59,7 +60,7 @@ export CC CXX CFLAGS CXXFLAGS CPPFLAGS
 
 # Parallelism (default 1 if not provided)
 if [ -z "${MAKEJ}" ] ; then
-    : "${MAKEJ:=8}"
+    : "${MAKEJ:=1}"
     export MAKEJ
 fi
 

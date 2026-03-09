@@ -1,0 +1,76 @@
+version: 2.1
+
+parameters:
+  run_monthly_testing:
+    type: boolean
+    default: false
+
+executors:
+  windows:
+    machine:
+      image: windows-server-2022-gui:current
+    environment:
+      RUNNER_OS: windows
+    resource_class: windows.large
+
+jobs:
+  r-build:
+    parameters:
+      os:
+        type: executor
+      r-version:
+        type: string
+    executor: << parameters.os >>
+    environment:
+      ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
+    steps:
+      - checkout
+      - run:
+          name: Install rig
+          shell: powershell.exe
+          command: |
+            choco install rig -y
+      - run:
+          name: Install R << parameters.r-version >> (win)
+          shell: powershell.exe
+          command: |
+            $R_VERSION = "<< parameters.r-version >>"
+            rig add $R_VERSION
+      - run:
+          name: Install Rtools
+          shell: powershell.exe
+          command: |
+            choco install rtools -y
+      - run:
+          name: Install R packages
+          shell: powershell.exe
+          command: |
+            $R_VERSION = "<< parameters.r-version >>"
+            $RBin = "C:\Program Files\R\R-$R_VERSION\bin"
+            $Env:Path = "$Env:Path;$RBin"
+            Rscript.exe -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
+      - run:
+          name: Build and test
+          shell: powershell.exe
+          no_output_timeout: 30m
+          command: |
+            $R_VERSION = "<< parameters.r-version >>"
+            $RTOOLS_HOME = "C:\rtools45"
+            $RBin = "C:\Program Files\R\R-$R_VERSION\bin"
+            $RtoolsBin = "C:\rtools45\usr\bin;C:\rtools45\x86_64-w64-mingw32.static.posix\bin"
+            $Env:Path = "$Env:Path;$RBin;$RtoolsBin"
+            $Env:Path
+            $MAKEJ=8
+            Rscript.exe  -e "remotes::install_git('.')"
+workflows:
+  r-build-test:
+    jobs:
+      - r-build:
+          matrix:
+            parameters:
+              r-version: ['4.4.1']
+              os: ["windows"]
+          filters:
+            branches:
+              only:
+                - release
