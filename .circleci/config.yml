@@ -98,5 +98,5 @@ workflows:
           filters:
             branches:
               only:
-                - main
+                - release
                 - /pull\/.*/  # Run on all pull request branches
