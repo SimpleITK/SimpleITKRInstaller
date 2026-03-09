@@ -38,6 +38,7 @@ RCALL="${R_HOME}/bin/Rscript.exe"
 export RCALL
 
 echo "R_LIBS is: ${R_LIBS}"
+echo "RCALL is: ${RCALL}"
 c++ --version || gcc --version || echo "no c++ compiler found"
 cmake --version || echo "cmake not found"
 make --version || echo "make not found"
@@ -107,8 +108,8 @@ fi
   # Remove ITK-build to save space (if present)
   [ -d ITK-build ] && rm -rf ITK-build
 
-  # Move wrapped R package into the package root using R
-  "${RCALL}" -f "${PKGBASED}/sitkmove.R" --args \
-    "SimpleITK-build/Wrapping/R/Packaging/SimpleITK" \
-    "${PKGBASED}"
+  # # Move wrapped R package into the package root using R
+  # "${RCALL}" -f "${PKGBASED}/sitkmove.R" --args \
+  #   "SimpleITK-build/Wrapping/R/Packaging/SimpleITK" \
+  #  "${PKGBASED}"
 )
