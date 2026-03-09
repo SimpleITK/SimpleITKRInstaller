@@ -62,13 +62,16 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
 
-      - name: System Dependencies
-        if: startsWith( matrix.os, 'ubuntu' )
-        run: |
-          sudo apt-get -y update &&
-          sudo apt-get install -y libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh &&
-          sudo rm -rf /var/lib/apt/lists/*
+      # # do I need this ? 
+      # - name: System Dependencies
+      #   if: startsWith( matrix.os, 'ubuntu' )
+      #   run: |
+      #     sudo apt-get -y update &&
+      #     sudo apt-get install -y libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh &&
+      #     sudo rm -rf /var/lib/apt/lists/*
+          
       - name: Configuration Information
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
           mkdir ${R_LIBS}
           c++ --version
@@ -77,6 +80,7 @@ jobs:
           R --version
           
       - name: Install R packages
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
           R -e "install.packages(c('remotes', 'desc'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
           
