@@ -1,0 +1,163 @@
+on:
+  push:
+
+name: R-release
+
+jobs:
+
+  metadata:
+    name: Read package metadata
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.5.2'
+
+      - name: Extract version from DESCRIPTION
+        id: meta
+        run: |
+          VERSION="$(Rscript -e 'x <- read.dcf("DESCRIPTION"); cat(x[1,"Version"])')"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $VERSION"
+
+  build:
+    name: Build R package on ${{ matrix.config.os }}
+    runs-on: ${{ matrix.config.os }}
+    needs: metadata
+
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      _R_CHECK_TESTS_NLINES_: 0
+      NOT_CRAN: true
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: true
+      _R_CHECK_FORCE_SUGGESTS_: false
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: macos-latest,   r: 'release', build: 'binary'}
+          - {os: ubuntu-latest,  r: 'release', build: 'source'}
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          rtools-version: ${{ matrix.config.rtools-version }}
+
+      - name: System Dependencies
+        if: startsWith( matrix.os, 'ubuntu' )
+        run: |
+          sudo apt-get -y update &&
+          sudo apt-get install -y libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh &&
+          sudo rm -rf /var/lib/apt/lists/*
+      - name: Configuration Information
+        run: |
+          mkdir ${R_LIBS}
+          c++ --version
+          cmake --version
+          which R
+          R --version
+          
+      - name: Install R packages
+        run: |
+          R -e "install.packages(c('remotes', 'desc'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
+          
+      - name: Make source (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          set -x
+          R CMD build . --no-manual
+        env:
+          ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
+          
+      - name: Build Package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          set -x
+          R CMD INSTALL --build -l ${R_LIBS} --configure-vars='MAKEJ=8' .
+        env:
+          ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
+        
+      - name: Configuration Information (Windows)
+        if: startsWith(matrix.os, 'windows')
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:R_LIBS" | Out-Null
+          g++ --version
+          cmake --version
+          Get-Command R.exe
+          R.exe --version
+          
+      - name: Install R packages (Windows)
+        if: startsWith(matrix.os, 'windows')
+        shell: pwsh
+        run: |
+          Rscript -e "lib <- Sys.getenv('R_LIBS'); lib <- normalizePath(lib, winslash='/', mustWork=FALSE); dir.create(lib, recursive=TRUE, showWarnings=FALSE); install.packages('remotes', lib=lib, repos='https://cloud.r-project.org/')"
+          Rscript.exe -e "install.packages(c('remotes', 'desc'), repos='https://cloud.r-project.org/')"
+  
+      - name: Build Package (Windows)
+        if: startsWith(matrix.os, 'windows')
+        shell: pwsh
+        env:
+          ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
+        run: |
+          # export MAKEJ=8
+          # export RTOOLS_HOME="$(ls -d /c/rtools* | head -n 1)"
+          $env:MAKEJ="8"
+          $env:RTOOLS_HOME="C:\rtools44"  
+          Rcmd.exe INSTALL --build .
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          mkdir -p dist
+          mv *.zip *.tgz *.tar.gz dist/ 2>/dev/null || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: r-${{ matrix.config.os }}
+          path: dist/*
+
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-22.04
+    needs: [metadata, build]
+
+    permissions:
+      contents: write
+
+    steps:
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Inspect release assets
+        run: ls -R dist
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.metadata.outputs.version }}
+          name: ${{ needs.metadata.outputs.version }}
+          draft: true
+          files: dist/**/*

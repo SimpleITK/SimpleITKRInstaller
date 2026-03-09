@@ -156,7 +156,7 @@ jobs:
         r-version: ${{ matrix.R }}
         rtools-version: '44'
         
-    - name: Configuration Information (win)
+    - name: Configuration Information (Windows)
       if: startsWith(matrix.os, 'windows')
       shell: pwsh
       run: |
@@ -198,16 +198,29 @@ jobs:
   deploy:
     needs: [R-build, R-build-win]
 
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     runs-on: ubuntu-latest
+
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: |
+          echo "Collected artifacts:"
+          find artifacts -type f
+
+      - name: Upload artifacts to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.prepare-release.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          echo "Uploading assets to release $TAG"
+
+          for f in $(find artifacts -type f \( -name "*.zip" -o -name "*.tar.gz" -o -name "*.tgz" \)); do
+            echo "Uploading $f"
+            gh release upload "$TAG" "$f" --clobber
+          done
