@@ -20,7 +20,7 @@ executors:
     resource_class: m4pro.medium
 
 jobs:
-  r-release:
+  r-build:
     parameters:
       os:
         type: executor
@@ -87,10 +87,10 @@ jobs:
             R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=3'))"
 
 workflows:
-  r-release-wf:
+  r-build-test:
     # Runs on: push to main, pull requests to main, manual trigger, and scheduled runs
     jobs:
-      - r-release:
+      - r-build:
           matrix:
             parameters:
               r-version: ['4.5.2']
