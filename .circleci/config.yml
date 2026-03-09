@@ -87,7 +87,7 @@ jobs:
             R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=3'))"
 
 workflows:
-  r-release:
+  r-release-wf:
     # Runs on: push to main, pull requests to main, manual trigger, and scheduled runs
     jobs:
       - r-release:
