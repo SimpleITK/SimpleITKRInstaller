@@ -119,7 +119,8 @@ fi
   echo $SCRIPT
   
   "${RCALL}" -e "print(commandArgs(TRUE))" --args "$SRC" "$DST"
-  "${RCALL}" -f "$SCRIPT" --args "$SRC" "$DST"
+  # "${RCALL}" -f "$SCRIPT" --args "$SRC" "$DST"
+  "${RCALL}" -e "source('$SCRIPT')" --args "$SRC" "$DST"
    
   # "${RCALL}" -f "${PKGBASED}/sitkmove.R" --args \
   #   "SimpleITK-build/Wrapping/R/Packaging/SimpleITK" \
