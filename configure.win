@@ -14,7 +14,7 @@ export SimpleITKGit="https://github.com/Artur-man/SimpleITK"
 export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
 
 PKGBASED=$(pwd)
-echo "$PKGBASED"
+echo "PKGBASED is: ${PKGBASED}"
 
 # --- Check R_HOME ---
 if [ -z "$R_HOME" ]; then
@@ -81,10 +81,8 @@ SITK_SRC="$(pwd)"
 
 mkdir -p ../Build
 cd ../Build
+echo "Current directory: $PWD"
 
-echo "Path:"
-echo $PWD
-  
 # Configure with Unix Makefiles (Rtools toolchain)
 cmake -G "Unix Makefiles" \
   -DWRAP_DEFAULT=OFF \
@@ -100,7 +98,7 @@ cmake -G "Unix Makefiles" \
   "${BUILDDIR}/SimpleITK/SuperBuild/"
 
 echo "Parallel build using -j${MAKEJ}"
-echo $PWD
+echo "Current directory: $PWD"
   
 # Build the specific target with parallel jobs
 cmake --build . --target SimpleITK-build -- -j"${MAKEJ}"
