@@ -22,24 +22,23 @@ if [ -z "$R_HOME" ]; then
   exit 1
 fi
 
+# Use Rscript on Windows
+RCALL="${R_HOME}/bin/Rscript.exe"
+export RCALL
+
 # --- Check RTOOLS_HOME ---
 export RTOOLS_HOME="$(ls -d /c/rtools* | head -n 1)" 
 if [ -z "$RTOOLS_HOME" ]; then
   echo "Environment variable \"RTOOLS_HOME\" is not set!" 1>&2
   exit 1
-else
-  echo "$RTOOLS_HOME"
 fi
 
 # Update PATH to include Rtools binaries
 export PATH="${RTOOLS_HOME}/usr/bin:${RTOOLS_HOME}/x86_64-w64-mingw32.static.posix/bin:${PATH}"
 
-# Use Rscript on Windows
-RCALL="${R_HOME}/bin/Rscript.exe"
-export RCALL
-
 echo "R_LIBS is: ${R_LIBS}"
 echo "RCALL is: ${RCALL}"
+echo "RTOOLS_HOME is: ${RTOOLS_HOME}"
 c++ --version || gcc --version || echo "no c++ compiler found"
 cmake --version || echo "cmake not found"
 make --version || echo "make not found"

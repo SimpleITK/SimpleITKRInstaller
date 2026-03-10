@@ -116,7 +116,6 @@ jobs:
           ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
         run: |
           $env:MAKEJ="8"
-          # $env:RTOOLS_HOME="C:\rtools44"  
           Rcmd.exe INSTALL --build .
 
       - name: Collect artifacts
