@@ -112,18 +112,21 @@ fi
   
   # mimic 
   PKGURL="https://artur-man.r-universe.dev/bin/windows/contrib/4.5/ImageArray_0.99.6.zip"
-  TMPZIP="${BUILDDIR}/ImageArray.zip"
+  TMPZIP="SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ImageArray.zip"
   
   echo "Downloading $PKGURL"
+  mkdir -p SimpleITK-build/Wrapping/R/Packaging/SimpleITK
   curl -L "$PKGURL" -o "$TMPZIP"
+  ls -l $TMPZIP
   
-  echo "Unpacking"
-  unzip -o "$TMPZIP" -d "$BUILDDIR"
-  
-  echo "Copying package contents"
-  mkdir -p $PKGBASED/ImageArray
-  cp -r "$BUILDDIR/ImageArray/"* "$PKGBASED/."
-  ls "$PKGBASED/"
+  # 
+  # echo "Unpacking"
+  # unzip -o "$TMPZIP" -d "$BUILDDIR"
+  # 
+  # echo "Copying package contents"
+  # mkdir -p $PKGBASED/ImageArray
+  # cp -r "$BUILDDIR/ImageArray/"* "$PKGBASED/."
+  # ls "$PKGBASED/"
 
   # Move wrapped R package into the package root using R
   SRC=$(cygpath -m "SimpleITK-build/Wrapping/R/Packaging/SimpleITK")
