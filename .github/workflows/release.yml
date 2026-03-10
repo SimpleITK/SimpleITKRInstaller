@@ -115,8 +115,6 @@ jobs:
         env:
           ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
         run: |
-          # export MAKEJ=8
-          # export RTOOLS_HOME="$(ls -d /c/rtools* | head -n 1)"
           $env:MAKEJ="8"
           $env:RTOOLS_HOME="C:\rtools44"  
           Rcmd.exe INSTALL --build .
