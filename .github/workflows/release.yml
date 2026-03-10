@@ -5,31 +5,31 @@ name: R-release
 
 jobs:
 
-  metadata:
-    name: Read package metadata
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.meta.outputs.version }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: '4.5.2'
-
-      - name: Extract version from DESCRIPTION
-        id: meta
-        run: |
-          VERSION="$(Rscript -e 'x <- read.dcf("DESCRIPTION"); cat(x[1,"Version"])')"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Detected version: $VERSION"
+  # metadata:
+  #   name: Read package metadata
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     version: ${{ steps.meta.outputs.version }}
+  # 
+  #   steps:
+  #     - uses: actions/checkout@v4
+  # 
+  #     - name: Setup R
+  #       uses: r-lib/actions/setup-r@v2
+  #       with:
+  #         r-version: '4.5.2'
+  # 
+  #     - name: Extract version from DESCRIPTION
+  #       id: meta
+  #       run: |
+  #         VERSION="$(Rscript -e 'x <- read.dcf("DESCRIPTION"); cat(x[1,"Version"])')"
+  #         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+  #         echo "Detected version: $VERSION"
 
   build:
     name: Build R package on ${{ matrix.config.os }}
     runs-on: ${{ matrix.config.os }}
-    needs: metadata
+    # needs: metadata
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true

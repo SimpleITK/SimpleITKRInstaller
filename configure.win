@@ -121,7 +121,8 @@ fi
   unzip -o "$TMPZIP" -d "$BUILDDIR"
   
   echo "Copying package contents"
-  cp -r "$BUILDDIR/ImageArray/"* "$PKGBASED/ImageArray/"
+  mkdir -p $PKGBASED/ImageArray
+  cp -r "$BUILDDIR/ImageArray/"* "$PKGBASED/ImageArray/."
   ls "$PKGBASED/ImageArray"
 
   # Move wrapped R package into the package root using R
