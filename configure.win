@@ -87,27 +87,42 @@ fi
   echo "Path:"
   echo $PWD
   
-  # Configure with Unix Makefiles (Rtools toolchain)
-  cmake -G "Unix Makefiles" \
-    -DWRAP_DEFAULT=OFF \
-    -DWRAP_R=ON \
-    -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
-    -DSimpleITK_BUILD_DISTRIBUTE=ON \
-    -DBUILD_EXAMPLES=OFF \
-    -DBUILD_TESTING=OFF \
-    -DITK_SKIP_PATH_LENGTH_CHECK=ON \
-    -DCMAKE_BUILD_TYPE=MinSizeRel \
-    -DITK_USE_BUILD_DIR:BOOL=ON \
-    ${ADDITIONAL_SITK_MODULES} \
-    "${BUILDDIR}/SimpleITK/SuperBuild/"
+  # # Configure with Unix Makefiles (Rtools toolchain)
+  # cmake -G "Unix Makefiles" \
+  #   -DWRAP_DEFAULT=OFF \
+  #   -DWRAP_R=ON \
+  #   -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
+  #   -DSimpleITK_BUILD_DISTRIBUTE=ON \
+  #   -DBUILD_EXAMPLES=OFF \
+  #   -DBUILD_TESTING=OFF \
+  #   -DITK_SKIP_PATH_LENGTH_CHECK=ON \
+  #   -DCMAKE_BUILD_TYPE=MinSizeRel \
+  #   -DITK_USE_BUILD_DIR:BOOL=ON \
+  #   ${ADDITIONAL_SITK_MODULES} \
+  #   "${BUILDDIR}/SimpleITK/SuperBuild/"
+  # 
+  # echo "Parallel build using -j${MAKEJ}"
+  # echo $PWD
+  # # Build the specific target with parallel jobs
+  # cmake --build . --target SimpleITK-build -- -j"${MAKEJ}"
 
-  echo "Parallel build using -j${MAKEJ}"
-  echo $PWD
-  # Build the specific target with parallel jobs
-  cmake --build . --target SimpleITK-build -- -j"${MAKEJ}"
-
-  # Remove ITK-build to save space (if present)
-  [ -d ITK-build ] && rm -rf ITK-build
+  # # Remove ITK-build to save space (if present)
+  # [ -d ITK-build ] && rm -rf ITK-build
+  # 
+  
+  # mimic 
+  PKGURL="https://artur-man.r-universe.dev/bin/windows/contrib/4.5/ImageArray_0.99.6.zip"
+  TMPZIP="${BUILDDIR}/ImageArray.zip"
+  
+  echo "Downloading $PKGURL"
+  curl -L "$PKGURL" -o "$TMPZIP"
+  
+  echo "Unpacking"
+  unzip -o "$TMPZIP" -d "$BUILDDIR"
+  
+  echo "Copying package contents"
+  cp -r "$BUILDDIR/ImageArray/"* "$PKGBASED/"
+  ls "$PKGBASED/ImageArray"
 
   # Move wrapped R package into the package root using R
   SRC=$(cygpath -m "SimpleITK-build/Wrapping/R/Packaging/SimpleITK")
