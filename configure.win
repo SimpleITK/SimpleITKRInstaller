@@ -64,81 +64,50 @@ if [ -z "${MAKEJ}" ] ; then
     export MAKEJ
 fi
 
-# # --- Build in SITK directory ---
-# (
-  cd "$BUILDDIR"
+# --- Build in SITK directory ---
+cd "$BUILDDIR"
 
-  if [ ! -d SimpleITK ]; then
-    git clone "$SimpleITKGit"
-    cd SimpleITK
-    git fetch --all
-    git checkout release
-  else
-    cd SimpleITK
-    git fetch --all
-    git checkout release
-  fi
+if [ ! -d SimpleITK ]; then
+  git clone "$SimpleITKGit"
+  cd SimpleITK
+  git fetch --all
+  git checkout release
+else
+  cd SimpleITK
+  git fetch --all
+  git checkout release
+fi
 
-  SITK_SRC="$(pwd)"
+SITK_SRC="$(pwd)"
 
-  mkdir -p ../Build
-  cd ../Build
+mkdir -p ../Build
+cd ../Build
 
-  echo "Path:"
-  echo $PWD
+echo "Path:"
+echo $PWD
   
-  # Configure with Unix Makefiles (Rtools toolchain)
-  cmake -G "Unix Makefiles" \
-    -DWRAP_DEFAULT=OFF \
-    -DWRAP_R=ON \
-    -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
-    -DSimpleITK_BUILD_DISTRIBUTE=ON \
-    -DBUILD_EXAMPLES=OFF \
-    -DBUILD_TESTING=OFF \
-    -DITK_SKIP_PATH_LENGTH_CHECK=ON \
-    -DCMAKE_BUILD_TYPE=MinSizeRel \
-    -DITK_USE_BUILD_DIR:BOOL=ON \
-    ${ADDITIONAL_SITK_MODULES} \
-    "${BUILDDIR}/SimpleITK/SuperBuild/"
+# Configure with Unix Makefiles (Rtools toolchain)
+cmake -G "Unix Makefiles" \
+  -DWRAP_DEFAULT=OFF \
+  -DWRAP_R=ON \
+  -DITK_GIT_TAG=ea28c4c7ff4041acbe425a302eca5be46e957def \
+  -DSimpleITK_BUILD_DISTRIBUTE=ON \
+  -DBUILD_EXAMPLES=OFF \
+  -DBUILD_TESTING=OFF \
+  -DITK_SKIP_PATH_LENGTH_CHECK=ON \
+  -DCMAKE_BUILD_TYPE=MinSizeRel \
+  -DITK_USE_BUILD_DIR:BOOL=ON \
+  ${ADDITIONAL_SITK_MODULES} \
+  "${BUILDDIR}/SimpleITK/SuperBuild/"
 
-  echo "Parallel build using -j${MAKEJ}"
-  echo $PWD
-  # Build the specific target with parallel jobs
-  cmake --build . --target SimpleITK-build -- -j"${MAKEJ}"
+echo "Parallel build using -j${MAKEJ}"
+echo $PWD
+  
+# Build the specific target with parallel jobs
+cmake --build . --target SimpleITK-build -- -j"${MAKEJ}"
 
-  # Remove ITK-build to save space (if present)
-  [ -d ITK-build ] && rm -rf ITK-build
-
-  echo "Build content"
-  ls -l SimpleITK-build/Wrapping/R/Packaging/SimpleITK
+# Remove ITK-build to save space (if present)
+[ -d ITK-build ] && rm -rf ITK-build
   
-  echo "Copying package contents"
-  cp -r SimpleITK-build/Wrapping/R/Packaging/SimpleITK/* "$PKGBASED/."
-  
-  echo "destination content"
-  ls -l ${PKGBASED}/
-  
-  # mimic 
-  # PKGURL="https://artur-man.r-universe.dev/bin/windows/contrib/4.5/ImageArray_0.99.6.zip"
-  # TMPZIP="SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ImageArray.zip"
-  
-  # echo "Downloading $PKGURL"
-  # mkdir -p SimpleITK-build/Wrapping/R/Packaging/SimpleITK
-  # curl -L "$PKGURL" -o "$TMPZIP"
-  # ls -l $TMPZIP
-  
-  # 
-  # echo "Unpacking"
-  # unzip -o "$TMPZIP" -d "$BUILDDIR"
-  # 
-  # echo "Copying package contents"
-  # mkdir -p $PKGBASED/ImageArray
-  # cp -r "$BUILDDIR/ImageArray/"* "$PKGBASED/."
-  # ls "$PKGBASED/"
-
-  # # Move wrapped R package into the package root using R
-  # SRC=$(cygpath -m "SimpleITK-build/Wrapping/R/Packaging/SimpleITK")
-  # DST=$(cygpath -m "${PKGBASED}")
-  # SCRIPT=$(cygpath -m "${PKGBASED}/sitkmove.R")
-  # "${RCALL}" -e "source('$SCRIPT')" "$SRC" "$DST"
-# )
+# Move wrapped R package into the package root using R
+cp -r SimpleITK-build/Wrapping/R/Packaging/SimpleITK/* "$PKGBASED/."
