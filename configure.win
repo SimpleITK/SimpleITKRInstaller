@@ -64,8 +64,8 @@ if [ -z "${MAKEJ}" ] ; then
     export MAKEJ
 fi
 
-# --- Build in SITK directory ---
-(
+# # --- Build in SITK directory ---
+# (
   cd "$BUILDDIR"
 
   if [ ! -d SimpleITK ]; then
@@ -114,4 +114,4 @@ fi
   "${RCALL}" -f "${PKGBASED}/sitkmove.R" --args \
     "SimpleITK-build/Wrapping/R/Packaging/SimpleITK" \
    "${PKGBASED}"
-)
+# )
