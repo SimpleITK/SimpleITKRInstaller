@@ -111,9 +111,9 @@ fi
 
   # Move wrapped R package into the package root using R
   # "${RCALL}" -e "sessionInfo()"
-  SRC=$(cygpath -w "SimpleITK-build/Wrapping/R/Packaging/SimpleITK")
-  DST=$(cygpath -w "${PKGBASED}")
-  SCRIPT=$(cygpath -w "${PKGBASED}/sitkmove.R")
+  SRC=$(cygpath -m "SimpleITK-build/Wrapping/R/Packaging/SimpleITK")
+  DST=$(cygpath -m "${PKGBASED}")
+  SCRIPT=$(cygpath -m "${PKGBASED}/sitkmove.R")
   echo $SRC
   echo $DST
   echo $SCRIPT
