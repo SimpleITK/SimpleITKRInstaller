@@ -110,19 +110,8 @@ fi
   # [ -d ITK-build ] && rm -rf ITK-build
 
   # Move wrapped R package into the package root using R
-  # "${RCALL}" -e "sessionInfo()"
   SRC=$(cygpath -m "SimpleITK-build/Wrapping/R/Packaging/SimpleITK")
   DST=$(cygpath -m "${PKGBASED}")
   SCRIPT=$(cygpath -m "${PKGBASED}/sitkmove.R")
-  echo $SRC
-  echo $DST
-  echo $SCRIPT
-  
-  "${RCALL}" -e "print(commandArgs(TRUE))" --args "$SRC" "$DST"
-  # "${RCALL}" -f "$SCRIPT" --args "$SRC" "$DST"
-  "${RCALL}" -e "source('$SCRIPT')" --args "$SRC" "$DST"
-   
-  # "${RCALL}" -f "${PKGBASED}/sitkmove.R" --args \
-  #   "SimpleITK-build/Wrapping/R/Packaging/SimpleITK" \
-  #  "${PKGBASED}"
+  "${RCALL}" -e "source('$SCRIPT')" "$SRC" "$DST"
 # )
