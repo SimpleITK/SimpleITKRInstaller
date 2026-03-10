@@ -142,27 +142,27 @@ jobs:
           path: dist/*
 
 
-  release:
-    name: Create GitHub Release
-    runs-on: ubuntu-22.04
-    needs: [metadata, build]
-
-    permissions:
-      contents: write
-
-    steps:
-
-      - uses: actions/download-artifact@v4
-        with:
-          path: dist
-
-      - name: Inspect release assets
-        run: ls -R dist
-
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.metadata.outputs.version }}
-          name: ${{ needs.metadata.outputs.version }}
-          draft: true
+  # release:
+  #   name: Create GitHub Release
+  #   runs-on: ubuntu-22.04
+  #   needs: [metadata, build]
+  # 
+  #   permissions:
+  #     contents: write
+  # 
+  #   steps:
+  # 
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         path: dist
+  # 
+  #     - name: Inspect release assets
+  #       run: ls -R dist
+  # 
+  #     - name: Publish release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         tag_name: ${{ needs.metadata.outputs.version }}
+  #         name: ${{ needs.metadata.outputs.version }}
+  #         draft: true
           files: dist/**/*
