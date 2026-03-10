@@ -47,7 +47,7 @@ jobs:
         config:
           # - {os: macos-15-intel, r: 'release', build: 'binary'}
           - {os: windows-latest, r: 'release', build: 'binary'}
-          - {os: ubuntu-latest, r: 'release', build: 'source'}
+          # - {os: ubuntu-latest, r: 'release', build: 'source'}
 
     steps:
 
