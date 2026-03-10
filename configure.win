@@ -118,6 +118,7 @@ fi
   echo $DST
   echo $SCRIPT
   
+  "${RCALL}" -e "print(commandArgs(TRUE))" --args "$SRC" "$DST"
   "${RCALL}" -f "$SCRIPT" --args "$SRC" "$DST"
    
   # "${RCALL}" -f "${PKGBASED}/sitkmove.R" --args \
