@@ -122,8 +122,8 @@ fi
   
   echo "Copying package contents"
   mkdir -p $PKGBASED/ImageArray
-  cp -r "$BUILDDIR/ImageArray/"* "$PKGBASED/ImageArray/."
-  ls "$PKGBASED/ImageArray"
+  cp -r "$BUILDDIR/ImageArray/"* "$PKGBASED/."
+  ls "$PKGBASED/"
 
   # Move wrapped R package into the package root using R
   SRC=$(cygpath -m "SimpleITK-build/Wrapping/R/Packaging/SimpleITK")
