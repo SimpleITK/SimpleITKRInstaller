@@ -113,7 +113,7 @@ fi
   ls -l SimpleITK-build/Wrapping/R/Packaging/SimpleITK
   
   echo "Copying package contents"
-  cp -r SimpleITK-build/Wrapping/R/Packaging/SimpleITK/"* "$PKGBASED/."
+  cp -r SimpleITK-build/Wrapping/R/Packaging/SimpleITK/* "$PKGBASED/."
   
   echo "destination content"
   ls -l ${PKGBASED}/
@@ -141,4 +141,4 @@ fi
   # DST=$(cygpath -m "${PKGBASED}")
   # SCRIPT=$(cygpath -m "${PKGBASED}/sitkmove.R")
   # "${RCALL}" -e "source('$SCRIPT')" "$SRC" "$DST"
-# )
+)
