@@ -114,6 +114,10 @@ fi
   SRC=$(cygpath -w "SimpleITK-build/Wrapping/R/Packaging/SimpleITK")
   DST=$(cygpath -w "${PKGBASED}")
   SCRIPT=$(cygpath -w "${PKGBASED}/sitkmove.R")
+  echo $SRC
+  echo $DST
+  echo $SCRIPT
+  
   "${RCALL}" -f "$SCRIPT" --args "$SRC" "$DST"
    
   # "${RCALL}" -f "${PKGBASED}/sitkmove.R" --args \
