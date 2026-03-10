@@ -113,7 +113,7 @@ fi
   ls -l SimpleITK-build/Wrapping/R/Packaging/SimpleITK
   
   echo "Copying package contents"
-  cp -r "$BUILDDIR/ImageArray/"* "$PKGBASED/."
+  cp -r "$BUILDDIR/SimpleITK-build/Wrapping/R/Packaging/SimpleITK/"* "$PKGBASED/."
   
   echo "destination content"
   ls -l ${PKGBASED}/
