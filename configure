@@ -36,9 +36,6 @@ if [ -z "${MAKEJ}" ] ; then
     export MAKEJ
 fi
 
-echo "R libraries directory:"
-echo ${R_LIBRARIES}
-
 ## All the building is going to happen in an SITK folder
 mkdir -p SITK
 (

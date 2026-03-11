@@ -27,9 +27,10 @@ remotes::install_github("SimpleITK/SimpleITKRInstaller", configure.vars=c("MAKEJ
 ```
 
 Note:
-On Linux and Mac requires [CMake](https://cmake.org/) and [git](https://git-scm.com/) in the path.
+On Linux and Mac requires [CMake](https://cmake.org/) and [git](https://git-scm.com/) in the path, and on Windows 
+requires [Rtools](https://cran.r-project.org/bin/windows/Rtools/) installation. 
 
-On Windows requires [rtools](https://cran.r-project.org/bin/windows/Rtools/) installation and setting the `RTOOLS_HOME` environment variable. For example:
+In case Rtools is not detected, it can also be set using the `RTOOLS_HOME` environment variable. For example:
 ```R
 Sys.setenv(RTOOLS_HOME = "C:/rtools45")
 ```
