@@ -1,0 +1,56 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  # enable manual triggering
+  schedule:
+  # run testing on the first of each month 5am ET / 9am UTC
+  - cron: '0 9 1 * *'
+
+jobs:
+  R-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        R: [ '4.3.1', '4.4.1' ]
+        os: [ 'macos-15-intel', 'ubuntu-latest' ]
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.R }} ${{ matrix.os }} build
+    env:
+      R_LIBS: ${{ github.workspace }}/Rlibs
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Setup R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{ matrix.R }}
+    - name: System Dependencies
+      if: startsWith( matrix.os, 'ubuntu' )
+      run: |
+        sudo apt-get -y update &&
+        sudo apt-get install -y libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh &&
+        sudo rm -rf /var/lib/apt/lists/*
+    - name: Configuration Information
+      run: |
+        mkdir ${R_LIBS}
+        c++ --version
+        cmake --version
+        which R
+        R --version
+    - name: Install R packages
+      run: |
+        R -e "install.packages(c('remotes'), lib=c('${R_LIBS}'), repo='https://cloud.r-project.org/')"
+    - name: Build and test
+      run: |
+        set -x
+        R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('"MAKEJ=2"'))"
+      env:
+        ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
