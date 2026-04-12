@@ -42,44 +42,24 @@ jobs:
         sudo apt-get install -y libcurl4-openssl-dev libssh2-1-dev libharfbuzz-dev libfribidi-dev gh &&
         sudo rm -rf /var/lib/apt/lists/*
     - name: Configuration Information
-      if: runner.os == 'Linux' || runner.os == 'macOS'
+      shell: bash
       run: |
-        mkdir ${R_LIBS}
-        c++ --version
+        mkdir -p "$R_LIBS"
         cmake --version
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          g++ --version
+        else
+          c++ --version
+        fi
         which R
         R --version
-    - name: Configuration Information (Windows)
-      if: startsWith(matrix.os, 'windows')
-      shell: pwsh
-      run: |
-        New-Item -ItemType Directory -Force -Path "$env:R_LIBS" | Out-Null
-        g++ --version
-        cmake --version
-        Get-Command R.exe
-        R.exe --version
     - name: Install R packages
-      if: runner.os == 'Linux' || runner.os == 'macOS'
+      shell: bash
       run: |
-        R -e "install.packages(c('remotes'), lib=c('${R_LIBS}'), repos='https://cloud.r-project.org/')"
-    - name: Install R packages (Windows)
-      if: startsWith(matrix.os, 'windows')
-      shell: pwsh
-      run: |
-        Rscript -e "lib <- Sys.getenv('R_LIBS'); lib <- normalizePath(lib, winslash='/', mustWork=FALSE); dir.create(lib, recursive=TRUE, showWarnings=FALSE); install.packages('remotes', lib=lib, repos='https://cloud.r-project.org/')"
-        Rscript.exe -e "install.packages(c('remotes', 'desc'), repos='https://cloud.r-project.org/')"
+        R -e "install.packages(c('remotes'), lib=Sys.getenv('R_LIBS'), repos='https://cloud.r-project.org/')"
     - name: Build and test
-      if: runner.os == 'Linux' || runner.os == 'macOS'
-      run: |
-        set -x
-        R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('"MAKEJ=2"'))"
-      env:
-        ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
-    - name: Build and test (Windows)
-      if: startsWith(matrix.os, 'windows')
-      shell: pwsh
+      shell: bash
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
-        $env:MAKEJ="3"
-        Rcmd.exe INSTALL --build .
+        R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS'))"

@@ -15,15 +15,16 @@ remotes::install_github("SimpleITK/SimpleITKRInstaller")
 Turn on mutlicore compilation, six cores in this example
 
 ```R
-remotes::install_github("SimpleITK/SimpleITKRInstaller", configure.vars=c("MAKEJ=6"))
+Sys.setenv(MAKEJ=6)
+remotes::install_github("SimpleITK/SimpleITKRInstaller")
 ```
 
 Use multicore compilation and build additional modules not included in the default build setup such as SimpleElastix (registration) and DCMTK (additional DICOM IO option beyond the default GDCM).
 
-**Note**: We need to use backslashes to escape the spaces in the `ADDITIONAL_SITK_MODULES` otherwise the `remotes::install` does not pass the string correctly to the shell (separates it using the spaces instead of passing as one string).
-
 ```R
-remotes::install_github("SimpleITK/SimpleITKRInstaller", configure.vars=c("MAKEJ=6", "ADDITIONAL_SITK_MODULES=-DSimpleITK_USE_ELASTIX=ON\\  -DModule_ITKIODCMTK:BOOL=ON"))
+Sys.setenv(MAKEJ=6)
+Sys.setenv(ADDITIONAL_SITK_MODULES="-DSimpleITK_USE_ELASTIX=ON -DModule_ITKIODCMTK:BOOL=ON")
+remotes::install_github("SimpleITK/SimpleITKRInstaller")
 ```
 
 Note:
