@@ -6,13 +6,13 @@
 
 A [remotes](https://github.com/r-lib/remotes) based installer for SimpleITK in [R](https://www.r-project.org/).
 
-Default configuration, single core compilation:
+Default configuration, minimal compute resources but takes a long time, single core compilation:
 
 ```R
 remotes::install_github("SimpleITK/SimpleITKRInstaller")
 ```
 
-Turn on mutlicore compilation, six cores in this example
+Turn on mutlicore compilation, **recommended configuration**, six cores in this example:
 
 ```R
 Sys.setenv(MAKEJ=6)
@@ -30,7 +30,7 @@ remotes::install_github("SimpleITK/SimpleITKRInstaller")
 Note:
 On Linux and Mac requires [CMake](https://cmake.org/) and [git](https://git-scm.com/) in the path.
 
-On Windows requires [rtools](https://cran.r-project.org/bin/windows/Rtools/) installation and setting the `RTOOLS_HOME` environment variable. For example:
+On Windows requires [rtools](https://cran.r-project.org/bin/windows/Rtools/) installation and setting the `RTOOLS_HOME` environment variable. Install the rtools version that matches the targeted R version. For example, using the R4.5.3 and rtools4.5 combination, set the enviornment variable to:
 ```R
 Sys.setenv(RTOOLS_HOME = "C:/rtools45")
 ```
