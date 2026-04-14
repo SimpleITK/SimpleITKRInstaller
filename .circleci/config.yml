@@ -84,7 +84,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             set -x
-            R -e "remotes::install_git(c('.'), lib=c('${R_LIBS}'), configure.vars=c('MAKEJ=3'))"
+            R -e "Sys.setenv(MAKEJ=3); remotes::install_git(c('.'), lib=c('${R_LIBS}'))"
 
 workflows:
   r-build-test:
