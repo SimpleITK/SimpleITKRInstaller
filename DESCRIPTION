@@ -1,6 +1,11 @@
 Package: SimpleITK
-Version: 2.5.3
-Date: 2025-11-20
+SITK_TARGET: v2.5.4
+Note1: The Version and Date fields are derived from the SITK_TARGET 
+       DO NOT EDIT THEM MANUALLY. 
+       After updating the SITK_TARGET run the sitk_r_version_date.sh script
+       and it will update these fields according to the SITK_TARGET.
+Version: 2.5.4
+Date: 2026-04-22
 Title: SimpleITK: A Simplified Interface to the Insight Toolkit
 Authors@R: c(person("Richard", "Beare", role = c("aut", "cre"),
                       email = "Richard.Beare@ieee.org"),
@@ -16,7 +21,7 @@ Description: This package is an interface to SimpleITK, which is a simplified
      interface to the Insight Toolkit (ITK) for medical image segmentation
      and registration.
 License: Apache License 2.0
-Note: The first url in the URL field below is the SimpleITK repository, and is used
+Note2: The first url in the URL field below is the SimpleITK repository, and is used
      by the config script under the assumption that it is the first in the list.
 URL: https://github.com/SimpleITK/SimpleITK, https://www.simpleitk.org, https://www.itk.org
 BugReports: https://github.com/SimpleITK/SimpleITK/issues

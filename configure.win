@@ -11,9 +11,7 @@ set -e
 # --- Settings ---
 # Load shared configuration for all OS (SimpleITK repository URL and tag)
 export SimpleITKGit=$(Rscript -e "d <- desc::desc(file='DESCRIPTION'); urls <- strsplit(d\$get_field('URL'), ',')[[1]]; cat(trimws(urls[1]))")
-# TODO: parse SITKTAG from DESCRIPTION after new release
-# export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
-export SITKTAG='1899b2'
+export SITK_TARGET=$(Rscript -e "cat(desc::desc_get_field('SITK_TARGET', file='DESCRIPTION'))")
 
 PKGBASED=$(pwd)
 echo "$PKGBASED"
@@ -68,11 +66,11 @@ export MAKEJ
   if [ ! -d SimpleITK ]; then
     git clone "$SimpleITKGit"
     cd SimpleITK
-    git checkout "$SITKTAG"
+    git checkout "$SITK_TARGET"
   else
     cd SimpleITK
     git fetch --tags
-    git checkout "$SITKTAG"
+    git checkout "$SITK_TARGET"
   fi
 
   SITK_SRC="$(pwd)"
