@@ -34,6 +34,11 @@ On Windows requires [rtools](https://cran.r-project.org/bin/windows/Rtools/) ins
 ```R
 Sys.setenv(RTOOLS_HOME = "C:/rtools45")
 ```
+# Building a specific SimpleITK version
+
+If you want to create a custom build for a specific SimpleITK release or a development version you need to:
+1. Set the `SITK_TARGET` in the `DESCRIPTION` file to the appropriate committish (hash, tag or branch).
+2. Run the `sitk_r_version_date.sh` script which will update the `Version` and `Date` entries in the `DESCRIPTION` file to match the expected format. For Version this is MAJOR.MINOR.PATCH.[9000] where the last entry is an "R universe" convention denoting "in development".
 
 # How to Cite
 

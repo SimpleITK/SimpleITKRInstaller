@@ -7,10 +7,7 @@
 # Requires git and cmake
 #
 export SimpleITKGit=$(Rscript -e "d <- desc::desc(file='DESCRIPTION'); urls <- strsplit(d\$get_field('URL'), ',')[[1]]; cat(trimws(urls[1]))")
-export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
-# TODO: parse SITKTAG from DESCRIPTION after new release
-# export SITKTAG=v$(Rscript -e "cat(desc::desc_get_field('Version', file='DESCRIPTION'))")
-export SITKTAG='1899b2'
+export SITK_TARGET=$(Rscript -e "cat(desc::desc_get_field('SITK_TARGET', file='DESCRIPTION'))")
 
 export PKGBASED=$(pwd)
 echo ${PKGBASED}
@@ -43,10 +40,13 @@ fi
 mkdir -p SITK
 (
     cd SITK &&
-    [ -d SimpleITK ] ||
-      ( git clone  ${SimpleITKGit} &&
-          cd SimpleITK &&
-          git checkout  ${SITKTAG} ) || exit 1
+    if [ ! -d SimpleITK ]; then
+        git clone ${SimpleITKGit} || exit 1
+    fi
+    cd SimpleITK &&
+    git fetch --tags &&
+    git checkout ${SITK_TARGET} || exit 1
+    cd ..
 
     SITK_SRC=$(pwd)/SimpleITK
 
