@@ -102,7 +102,7 @@ export MAKEJ
   # Remove ITK-build to save space (if present)
   [ -d ITK-build ] && rm -rf ITK-build
 
-  # Move wrapped R package into the package root
-  # TODO: sitkmove.R fails to move for Windows
-  cp -r SimpleITK-build/Wrapping/R/Packaging/SimpleITK/* "$PKGBASED/."
+  # Use R to do the move to avoid system specific issues.
+  ${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
+  exit 1
 )
