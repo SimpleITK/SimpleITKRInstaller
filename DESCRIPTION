@@ -1,5 +1,5 @@
 Package: SimpleITK
-SITK_TARGET: v2.5.4
+SITK_TARGET: release
 Note1: The Version and Date fields are derived from the SITK_TARGET 
        DO NOT EDIT THEM MANUALLY. 
        After updating the SITK_TARGET run the sitk_r_version_date.sh script

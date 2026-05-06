@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        R: [ '4.4.3', '4.5.3' ]
+        R: [ '4.4.3', '4.5.3', '4.6.0' ]
         os: [ 'macos-15-intel', 'ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
