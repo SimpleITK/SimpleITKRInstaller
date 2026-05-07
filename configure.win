@@ -51,7 +51,7 @@ mkdir -p "$BUILDDIR"
 CC="$("${R_HOME}/bin/R.exe" CMD config CC)"
 CXX="$("${R_HOME}/bin/R.exe" CMD config CXX)"
 CFLAGS="$("${R_HOME}/bin/R.exe" CMD config CFLAGS)"
-CXXFLAGS="$("${R_HOME}/bin/R.exe" CMD config CXX11FLAGS)"
+CXXFLAGS="$("${R_HOME}/bin/R.exe" CMD config CXXFLAGS)"
 CPPFLAGS="$("${R_HOME}/bin/R.exe" CMD config CPPFLAGS)"
 export CC CXX CFLAGS CXXFLAGS CPPFLAGS
 
