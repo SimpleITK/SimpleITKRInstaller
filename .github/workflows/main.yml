@@ -60,3 +60,4 @@ jobs:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
         R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS'))"
+        R -e "library(SimpleITK)"
