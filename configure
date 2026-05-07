@@ -67,7 +67,10 @@ mkdir -p SITK
     echo "Parallel build using -j${MAKEJ}"
     cmake --build . --target SimpleITK-build -- -j${MAKEJ} && \
         rm -rf ITK-build &&
-    # Use R to do the move to avoid system specific issues.
-    ${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
+    # CMake builds the R package in an isolated directory. Move its contents
+    # into the package source tree so that R CMD INSTALL can find them.
+    # Move built R package contents into the package source directory
+    cp -r SimpleITK-build/Wrapping/R/Packaging/SimpleITK/* "${PKGBASED}" && \
+    rm -rf SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ||
     exit 1
 ) || exit 1

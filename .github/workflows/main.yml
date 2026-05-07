@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        R: [ '4.3.3', '4.5.3' ]
+        R: [ '4.4.3', '4.5.3' ]
         os: [ 'macos-15-intel', 'ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
@@ -45,6 +45,8 @@ jobs:
         cmake --version
         if [[ "$RUNNER_OS" == "Windows" ]]; then
           g++ --version
+          ls -d /c/rtools* 2>/dev/null || echo "No rtools found in /c/"
+          ls -d /c/rtools*/usr/bin/g++* 2>/dev/null || echo "No g++ found in rtools"
         else
           c++ --version
         fi
