@@ -85,7 +85,7 @@ jobs:
           command: |
             set -x
             R -e "Sys.setenv(MAKEJ=3); remotes::install_git(c('.'), lib=c('${R_LIBS}'))"
-
+            R -e "library(SimpleITK); Version()"
 workflows:
   r-build-test:
     # Runs on: push to main, pull requests to main, manual trigger, and scheduled runs
