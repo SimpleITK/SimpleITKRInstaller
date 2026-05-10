@@ -97,12 +97,11 @@ export MAKEJ
   echo "Parallel build using -j${MAKEJ}"
   echo $PWD
   # Build the specific target with parallel jobs
-  cmake --build . --target SimpleITK-build -- -j"${MAKEJ}"
-
-  # Remove ITK-build to save space (if present)
-  [ -d ITK-build ] && rm -rf ITK-build
-
-  # Use R to do the move to avoid system specific issues.
-  ${RCALL} -f ${PKGBASED}/sitkmove.R --args SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ${PKGBASED} ||
+  cmake --build . --target SimpleITK-build -- -j"${MAKEJ}" && \
+      rm -rf ITK-build &&
+  # CMake builds the R package in an isolated directory. Move its contents
+  # into the package source tree so that R CMD INSTALL can find them.
+  cp -r SimpleITK-build/Wrapping/R/Packaging/SimpleITK/* "${PKGBASED}" && \
+  rm -rf SimpleITK-build/Wrapping/R/Packaging/SimpleITK/ ||
   exit 1
 )

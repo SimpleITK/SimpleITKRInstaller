@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        R: [ '4.3.3', '4.5.3' ]
+        R: [ '4.4.3', '4.5.3' ]
         os: [ 'macos-15-intel', 'ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
@@ -44,6 +44,8 @@ jobs:
         mkdir -p "$R_LIBS"
         cmake --version
         if [[ "$RUNNER_OS" == "Windows" ]]; then
+          ls -d /c/rtools* 2>/dev/null || echo "No rtools found in /c/"
+          which g++ || { echo "No g++ found on PATH"; exit 1; }
           g++ --version
         else
           c++ --version
@@ -60,3 +62,4 @@ jobs:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
         R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS'))"
+        R -e "library(SimpleITK); Version()"
