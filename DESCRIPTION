@@ -1,11 +1,11 @@
 Package: SimpleITK
-SITK_TARGET: v2.5.4
+SITK_TARGET: v2.5.5
 Note1: The Version and Date fields are derived from the SITK_TARGET 
        DO NOT EDIT THEM MANUALLY. 
        After updating the SITK_TARGET run the sitk_r_version_date.sh script
        and it will update these fields according to the SITK_TARGET.
-Version: 2.5.4
-Date: 2026-04-22
+Version: 2.5.5
+Date: 2026-05-12
 Title: SimpleITK: A Simplified Interface to the Insight Toolkit
 Authors@R: c(person("Richard", "Beare", role = c("aut", "cre"),
                       email = "Richard.Beare@ieee.org"),
@@ -14,7 +14,7 @@ Authors@R: c(person("Richard", "Beare", role = c("aut", "cre"),
 		     person("Ziv", "Yaniv", role="aut",
 		     email = "zivyaniv@nih.gov"))
 Author: Richard Beare, Bradley Lowekamp, Ziv Yaniv plus loads of others
-Depends: R (>= 3.4)
+Depends: R (>= 4.0)
 Imports: methods,
          desc
 Description: This package is an interface to SimpleITK, which is a simplified
