@@ -48,7 +48,13 @@ jobs:
               # the PATCH is ignored (only one patch version supported) the
               # architecture is added as a suffix (arm64, x86_64) to allow for
               # installations to coexist
-              rig default "${R_VERSION%.*}-arm64"
+              # Starting from R 4.6.0, rig no longer appends the architecture suffix
+              R_MAJOR_MINOR="${R_VERSION%.*}"
+              if [ "$(printf '%s\n' "4.6" "$R_MAJOR_MINOR" | sort -V | head -n1)" = "4.6" ]; then
+                rig default "$R_MAJOR_MINOR"
+              else
+                rig default "${R_MAJOR_MINOR}-arm64"
+              fi
             elif [ "$RUNNER_OS" == "linux" ]; then
               `which sudo` curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
               `which sudo` sh -c 'echo "deb http://rig.r-pkg.org/deb rig main" > /etc/apt/sources.list.d/rig.list'
@@ -93,7 +99,7 @@ workflows:
       - r-build:
           matrix:
             parameters:
-              r-version: ['4.3.3', '4.4.3', '4.5.3']
+              r-version: ['4.4.3', '4.5.3', '4.6.0']
               os: ["macos-arm"]
           filters:
             branches:
