@@ -13,6 +13,11 @@ on:
   # run testing on the first of each month 5am ET / 9am UTC
   - cron: '0 9 1 * *'
 
+# Set minimal permissions for all jobs (read-only)
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   R-build:
     strategy:
@@ -22,17 +27,15 @@ jobs:
         os: [ 'macos-15-intel', 'ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
-    env:
-      R_LIBS: ${{ github.workspace }}/Rlibs
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.sha }}
 
-    - name: Setup R
-      uses: r-lib/actions/setup-r@v2
+    - name: Setup R (also sets the R_LIBS_USER environment variable)
+      uses: r-lib/actions/setup-r@a51a8012b0aab7c32ef9d19bf54da93f3254335e # v2.12.0
       with:
         r-version: ${{ matrix.R }}
     - name: System Dependencies
@@ -44,7 +47,6 @@ jobs:
     - name: Configuration Information
       shell: bash
       run: |
-        mkdir -p "$R_LIBS"
         cmake --version
         if [[ "$RUNNER_OS" == "Windows" ]]; then
           ls -d /c/rtools* 2>/dev/null || echo "No rtools found in /c/"
@@ -58,45 +60,48 @@ jobs:
     - name: Install R packages
       shell: bash
       run: |
-        R -e "install.packages(c('remotes', 'pkgbuild'), lib=Sys.getenv('R_LIBS'), repos='https://cloud.r-project.org/')"
+        R -e "install.packages(c('remotes'), lib=Sys.getenv('R_LIBS_USER'), repos='https://cloud.r-project.org/')"
     - name: Build and test
       shell: bash
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
-        R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS'))"
+        R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS_USER'))"
         R -e "library(SimpleITK); Version()"
     - name: Create binary package from installed package
       id: create_package
       shell: bash
       run: |
         # Get the R version for naming
-        R_VERSION="${{ matrix.R }}"
-        R_VERSION_SHORT=$(echo $R_VERSION | cut -d'.' -f1,2)
+        R_VERSION_SHORT=$(echo "${{ matrix.R }}" | cut -d'.' -f1,2)
+
+        # Get package version from DESCRIPTION
+        PKG_VERSION=$(Rscript -e "cat(read.dcf(file.path(Sys.getenv('R_LIBS_USER'), 'SimpleITK', 'DESCRIPTION'), 'Version')[1])")
+
         # Create output directory for artifacts
         mkdir -p artifacts
-        # Build binary package from the installed package (no recompilation needed)
-        # The configure script already built everything and remotes::install_git installed it
-        R -e "pkg <- file.path(Sys.getenv('R_LIBS'), 'SimpleITK'); pkgbuild::build(pkg, dest_path='artifacts', binary=TRUE)"
-        # Rename with descriptive platform info
+
+        # Create binary package archive from installed package (no recompilation)
+        cd "${R_LIBS_USER}"
         if [[ "$RUNNER_OS" == "macOS" ]]; then
-          PKG_FILE=$(ls artifacts/SimpleITK_*.tgz)
-          NEW_NAME="${PKG_FILE%.tgz}_R${R_VERSION_SHORT}_macos-x86_64.tgz"
+          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_macos-x86_64.tgz"
+          tar czf "${GITHUB_WORKSPACE}/artifacts/${PKG_NAME}" SimpleITK
         elif [[ "$RUNNER_OS" == "Linux" ]]; then
-          PKG_FILE=$(ls artifacts/SimpleITK_*.tar.gz)
-          NEW_NAME="${PKG_FILE%.tar.gz}_R${R_VERSION_SHORT}_linux-x86_64.tar.gz"
+          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_linux-x86_64.tar.gz"
+          tar czf "${GITHUB_WORKSPACE}/artifacts/${PKG_NAME}" SimpleITK
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          PKG_FILE=$(ls artifacts/SimpleITK_*.zip)
-          NEW_NAME="${PKG_FILE%.zip}_R${R_VERSION_SHORT}_windows-x86_64.zip"
+          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_windows-x86_64.zip"
+          7z a -tzip "${GITHUB_WORKSPACE}/artifacts/${PKG_NAME}" SimpleITK
         fi
-        mv "$PKG_FILE" "$NEW_NAME"
+
+        cd "${GITHUB_WORKSPACE}"
         ls -lh artifacts/
 
         # Export PKG_NAME as output for use in upload step
         echo "pkg_name=${PKG_NAME}" >> $GITHUB_OUTPUT
     - name: Upload binary package
       if: steps.create_package.outcome == 'success'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: ${{ steps.create_package.outputs.pkg_name }}
         path: artifacts/*
@@ -114,7 +119,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 1
 
@@ -133,7 +138,7 @@ jobs:
 
     - name: Download all artifacts
       if: steps.verify_tag.outputs.draft_release == 'true'
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
         path: release-artifacts
         pattern: SimpleITK_*
@@ -149,7 +154,7 @@ jobs:
     # or updates it if it does.
     - name: Create or Update Draft Release
       if: steps.verify_tag.outputs.draft_release == 'true'
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
