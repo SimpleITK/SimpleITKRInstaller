@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         R: [ '4.4.3', '4.5.3', '4.6.0' ]
-        os: [ 'macos-15-intel', 'ubuntu-latest', 'windows-latest']
+        os: [ 'macos-15-intel', 'ubuntu-24.04', 'windows-latest']
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
 
@@ -66,44 +66,56 @@ jobs:
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
-        R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS_USER'))"
+        R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
         R -e "library(SimpleITK); Version()"
-    - name: Create binary package from installed package
-      id: create_package
+    - name: Rename package artifact
+    # The original artifact name is SimpleITK_<sitk_version>.zip (windows),
+    # SimpleITK_<sitk_version>.tgz (macOS), or SimpleITK_<sitk_version>.tar.gz (Linux).
+    # This is irrespective of the R version. We need to rename them so that they are
+    # unique. Otherwise we could not upload artifacts for different
+    # R versions because the names collide.
+      id: rename_package
       shell: bash
       run: |
-        # Get the R version for naming
-        R_VERSION_SHORT=$(echo "${{ matrix.R }}" | cut -d'.' -f1,2)
-
-        # Get package version from DESCRIPTION
-        PKG_VERSION=$(Rscript -e "cat(read.dcf(file.path(Sys.getenv('R_LIBS_USER'), 'SimpleITK', 'DESCRIPTION'), 'Version')[1])")
-
-        # Create output directory for artifacts
+        # canonical approach to collecting build artifacts in a directory for upload
         mkdir -p artifacts
 
-        # Create binary package archive from installed package (no recompilation)
-        cd "${R_LIBS_USER}"
-        if [[ "$RUNNER_OS" == "macOS" ]]; then
-          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_macos-x86_64.tgz"
-          tar czf "${GITHUB_WORKSPACE}/artifacts/${PKG_NAME}" SimpleITK
-        elif [[ "$RUNNER_OS" == "Linux" ]]; then
-          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_linux-x86_64.tar.gz"
-          tar czf "${GITHUB_WORKSPACE}/artifacts/${PKG_NAME}" SimpleITK
-        elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_windows-x86_64.zip"
-          7z a -tzip "${GITHUB_WORKSPACE}/artifacts/${PKG_NAME}" SimpleITK
+        # remotes::install_git(..., INSTALL_opts='--build') writes a valid package
+        # file into the current working directory (GITHUB_WORKSPACE).
+        PKG_PATH=$(find "${GITHUB_WORKSPACE}" -maxdepth 1 -type f \
+          \( -name 'SimpleITK_*.tgz' -o -name 'SimpleITK_*.zip' -o -name 'SimpleITK_*.tar.gz' \) \
+          | head -n 1)
+
+        if [[ -z "${PKG_PATH}" ]]; then
+          echo "No built package artifact found in ${GITHUB_WORKSPACE}."
+          exit 1
         fi
 
-        cd "${GITHUB_WORKSPACE}"
+        # package naming is SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_${OS_ARCHIVE_EXT}
+        R_VERSION_SHORT=$(echo "${{ matrix.R }}" | cut -d'.' -f1,2)
+        PKG_VERSION=$(Rscript -e "cat(read.dcf('DESCRIPTION', 'Version')[1])")
+
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_macos-x86_64.tgz"
+        elif [[ "$RUNNER_OS" == "Linux" ]]; then
+          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_linux-x86_64.tar.gz"
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_windows-x86_64.zip"
+        else
+          echo "Unsupported OS: $RUNNER_OS"
+          exit 1
+        fi
+
+        mv "${PKG_PATH}" "${GITHUB_WORKSPACE}/artifacts/${PKG_NAME}"
         ls -lh artifacts/
 
         # Export PKG_NAME as output for use in upload step
         echo "pkg_name=${PKG_NAME}" >> $GITHUB_OUTPUT
     - name: Upload binary package
-      if: steps.create_package.outcome == 'success'
+      if: steps.rename_package.outcome == 'success'
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
-        name: ${{ steps.create_package.outputs.pkg_name }}
+        name: ${{ steps.rename_package.outputs.pkg_name }}
         path: artifacts/*
         retention-days: 30
 
@@ -161,8 +173,43 @@ jobs:
         draft: true
         name: SimpleITK ${{ github.ref_name }} R Package Release
         body: |
-          Please review and test the packages before publishing this release.
-          Then remove the "Draft" status to make it public and delete this message.
+          **Please review and test the packages before publishing this release. Then remove this line and make it public.**
+
+          Detailed release notes are available on the [main SimpleITK repository](https://github.com/SimpleITK/SimpleITK/releases/${{ github.ref_name }}).
+
+          The GitHub Pages repository provides platform-specific binaries. If a binary is not available, you will need to build SimpleITK locally using the remotes installer. See the [README](https://github.com/${{ github.repository }}/blob/main/README.md) for detailed instructions.
+
+          Windows and macOS:
+
+          ```r
+          install.packages(
+            "SimpleITK",
+            repos = c("https://simpleitk.github.io/SimpleITKRInstaller/${{ github.ref_name }}"),
+            type = "binary"
+          )
+          ```
+
+          Linux:
+
+          ```r
+          install.packages(
+            "SimpleITK",
+            repos = NULL,
+            contriburl = paste0(
+              "https://simpleitk.github.io/SimpleITKRInstaller/${{ github.ref_name }}/__linux__/ubuntu-noble/",
+              paste(R.version$major, sub("\\..*$", "", R.version$minor), sep = "."),
+              "/src/contrib"
+            ),
+            type = "source"
+          )
+          ```
+
+          The Linux install above uses a "source" type installation even though it is binary, due to the way R handles binary packages on this platform.
+
+          If for some reason you decided to download the package artifact from this release page, before you install the package you will need to first unzip the file. Then rename it to `SimpleITK_<version>.zip` (windows), `SimpleITK_<version>.tgz` (macOS), or `SimpleITK_<version>.tar.gz` (Linux) to match the expected file name format.
+
+          ```r
+
         files: |
           release-artifacts/*
         fail_on_unmatched_files: true
