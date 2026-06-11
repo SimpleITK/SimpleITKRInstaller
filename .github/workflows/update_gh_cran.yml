@@ -24,36 +24,23 @@ jobs:
       - name: Set up R
         uses: r-lib/actions/setup-r@a51a8012b0aab7c32ef9d19bf54da93f3254335e # v2.12.0
 
-      - name: Download Release Assets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Foyer Package
         run: |
-          mkdir -p temp_packages
-          gh release download ${{ github.event.release.tag_name }} --dir temp_packages
+          Rscript update_cran_repo.R \
+            --foyer_dir SimpleITK_Foyer \
+            --output_dir /tmp/cran_output \
+            --repo_url https://github.com/${{ github.repository }} \
+            --tag ${{ github.event.release.tag_name }}
 
-      - name: Route Assets and Build PACKAGES Files
-        shell: bash
-        run: |
-          # Run the R script and always do the cleanup of the temp_packages directory,
-          # step returns the exit code from the R script.
-          (
-            Rscript update_cran_repo.R \
-              --packages_dir temp_packages \
-              --base_cran_dir . \
-              --repo_url https://github.com/${{ github.repository }} \
-              --tag ${{ github.event.release.tag_name }}
-            status=$?
-            rm -rf temp_packages
-            exit $status
-          )
-
-      - name: Commit and Push Changes
+      - name: Deploy to gh-pages
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git checkout gh-pages
-          git add .
+          rm -rf src
+          cp -r /tmp/cran_output/src .
+          git add src
           if ! git diff --cached --quiet; then
-            git commit -m "Update CRAN repository index for release ${{ github.event.release.tag_name }}"
+            git commit -m "Update CRAN-like repository for release ${{ github.event.release.tag_name }}"
             git push
           fi

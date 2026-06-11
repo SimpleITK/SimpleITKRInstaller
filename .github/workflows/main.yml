@@ -177,38 +177,35 @@ jobs:
 
           Detailed release notes are available on the [main SimpleITK repository](https://github.com/SimpleITK/SimpleITK/releases/${{ github.ref_name }}).
 
-          The GitHub Pages repository provides platform-specific binaries. If a binary is not available, you will need to build SimpleITK locally using the remotes installer. See the [README](https://github.com/${{ github.repository }}/blob/main/README.md) for detailed instructions.
+          To install SimpleITK we use a Foyer helper package that downloads the appropriate binary from the GitHub release assets. This is a two step process.
 
-          Windows and macOS:
-
-          ```r
-          install.packages(
-            "SimpleITK",
-            repos = c("https://simpleitk.github.io/SimpleITKRInstaller/${{ github.ref_name }}"),
-            type = "binary"
-          )
-          ```
-
-          Linux:
+          To install the latest SimpleITK version to your primary library directory, first element of `.libPaths()`, run the following:
 
           ```r
+          # install the SimpleITK foyer package
           install.packages(
-            "SimpleITK",
-            repos = NULL,
-            contriburl = paste0(
-              "https://simpleitk.github.io/SimpleITKRInstaller/${{ github.ref_name }}/__linux__/ubuntu-noble/",
-              paste(R.version$major, sub("\\..*$", "", R.version$minor), sep = "."),
-              "/src/contrib"
-            ),
+            "SimpleITK.foyer",
+            repos = c("https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"),
             type = "source"
           )
+
+          # Use foyer to install SimpleITK
+          library(SimpleITK.foyer)
+          install_simpleitk()
           ```
-
-          The Linux install above uses a "source" type installation even though it is binary, due to the way R handles binary packages on this platform.
-
-          If for some reason you decided to download the package artifact from this release page, before you install the package you will need to first unzip the file. Then rename it to `SimpleITK_<version>.zip` (windows), `SimpleITK_<version>.tgz` (macOS), or `SimpleITK_<version>.tar.gz` (Linux) to match the expected file name format.
+          Now you can load the SimpleITK library as usual:
 
           ```r
+          library(SimpleITK)
+          ```
+
+          The `install_simpleitk` function provides finer installation control such as SimpleITK version, library installation location and more. To see all options:
+
+          ```r
+          help(install_simpleitk)
+          ```
+
+          If you directly download the package artifact from this release page, before you install the package you will need to first unzip the file. Then rename it to `SimpleITK_<version>.zip` (windows), `SimpleITK_<version>.tgz` (macOS), or `SimpleITK_<version>.tar.gz` (Linux) to match the expected file name format.
 
         files: |
           release-artifacts/*
