@@ -1,8 +1,10 @@
 # Base URLs for SimpleITK binary releases.
 # These values are updated by the build workflow when generating the foyer package.
-.sitk_releases_base_url <- "https://github.com/SimpleITK/SimpleITKRInstaller/releases/download"
-.sitk_releases_page_url <- "https://github.com/SimpleITK/SimpleITKRInstaller/releases"
 .sitk_repo_url <- "https://github.com/SimpleITK/SimpleITKRInstaller"
+.sitk_releases_page_url <- paste0(.sitk_repo_url,"/releases")
+.sitk_releases_base_url <- paste0(.sitk_releases_page_url,"/download")
+
+
 
 #' Install SimpleITK Binary Package
 #'
@@ -63,12 +65,36 @@ install_simpleitk <- function(version = NULL,
     return(invisible(TRUE))
   }
   
-  # Get version from DESCRIPTION if not specified
+  # Get version from latest GitHub release if not specified
   if (is.null(version)) {
-    version <- utils::packageDescription("SimpleITK.foyer", fields = "Version")
-    if (is.na(version)) {
-      stop("Cannot determine SimpleITK version. Please specify version parameter.")
-    }
+    tryCatch({
+      # Derive API URL from repo URL
+      api_url <- sub("^https://github\\.com/",
+                     "https://api.github.com/repos/",
+                     .sitk_repo_url)
+      api_url <- paste0(api_url, "/releases/latest")
+
+      # Fetch latest release info
+      con <- url(api_url, headers = c("User-Agent" = "SimpleITKRInstaller/1.0 R"))
+      on.exit(close(con), add = TRUE)
+      response <- readLines(con, warn = FALSE)
+      json_text <- paste(response, collapse = "")
+
+      # Extract tag_name value from JSON (remove 'v' prefix if present)
+      version <- sub('.*"tag_name"\\s*:\\s*"v?([^"]+)".*', '\\1', json_text)
+
+      if (is.null(version) || version == "" || is.na(version) || version == json_text) {
+        stop("Could not parse version from GitHub API")
+      }
+
+      if (!quiet) {
+        message("Using latest version: ", version)
+      }
+    }, error = function(e) {
+      stop("Cannot determine latest SimpleITK version automatically.\n",
+           "Please specify version parameter explicitly, e.g., install_simpleitk(version = '2.5.5').\n",
+           "Error: ", conditionMessage(e))
+    })
   }
   
   # Get R version (major.minor only)
@@ -115,7 +141,8 @@ install_simpleitk <- function(version = NULL,
   
   # Download the binary
   tryCatch({
-    download.file(download_url, temp_file, mode = "wb", quiet = quiet)
+    download.file(download_url, temp_file, mode = "wb", quiet = quiet,
+                  headers = c("User-Agent" = "SimpleITKRInstaller/1.0 R"))
   }, error = function(e) {
     stop("Failed to download SimpleITK binary package.\n",
          "URL: ", download_url, "\n",

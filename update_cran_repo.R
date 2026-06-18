@@ -19,21 +19,19 @@
 # to download any specific binary version from GitHub Releases.
 #
 # Usage:
-#   Rscript update_cran_repo.R --foyer_dir <path> --output_dir <path> --repo_url <url> --tag <tag>
+#   Rscript update_cran_repo.R --foyer_dir <path> --output_dir <path> --repo_url <url>
 #
 # Arguments:
 #   --foyer_dir   Directory containing the foyer package template
 #   --output_dir  Output directory for the CRAN-like structure (e.g., /tmp/cran_output)
 #   --repo_url    URL of the GitHub repository hosting binary releases
 #                 (e.g., https://github.com/SimpleITK/SimpleITKRInstaller)
-#   --tag         Release tag name (e.g., v2.5.5)
 #
 # Example:
 #   Rscript update_cran_repo.R \
 #     --foyer_dir SimpleITK_Foyer \
 #     --output_dir /tmp/cran_output \
-#     --repo_url https://github.com/SimpleITK/SimpleITKRInstaller \
-#     --tag v2.5.5
+#     --repo_url https://github.com/SimpleITK/SimpleITKRInstaller
 
 library(tools)
 
@@ -65,13 +63,15 @@ parse_args <- function(args, required_args = NULL) {
 
 # Parse command line arguments
 args <- commandArgs(trailingOnly = TRUE)
-parsed_args <- parse_args(args, required_args = c("foyer_dir", "output_dir", "repo_url", "tag"))
+parsed_args <- parse_args(args, required_args = c("foyer_dir", "output_dir", "repo_url"))
 
 foyer_dir <- parsed_args[["foyer_dir"]]
 output_dir <- parsed_args[["output_dir"]]
 repo_url <- parsed_args[["repo_url"]]
-tag <- parsed_args[["tag"]]
-version <- sub("^v", "", tag)
+
+# Read version from the DESCRIPTION file of the foyer package
+description_file <- file.path(foyer_dir, "DESCRIPTION")
+version <- read.dcf(description_file, fields = "Version")[1, 1]
 
 # Validate foyer directory exists
 if (!dir.exists(foyer_dir)) {
@@ -85,40 +85,11 @@ if (dir.exists(foyer_copy)) unlink(foyer_copy, recursive = TRUE)
 dir.create(foyer_copy, recursive = TRUE)
 file.copy(list.files(foyer_dir, full.names = TRUE), foyer_copy, recursive = TRUE)
 
-# 1. Update DESCRIPTION version
-desc_path <- file.path(foyer_copy, "DESCRIPTION")
-desc_lines <- readLines(desc_path)
-desc_lines <- sub("^Version:.*", sprintf("Version: %s", version), desc_lines)
-# Add/update Date field
-date_line <- sprintf("Date: %s", Sys.Date())
-if (any(grepl("^Date:", desc_lines))) {
-  desc_lines <- sub("^Date:.*", date_line, desc_lines)
-} else {
-  # Insert Date after Version
-  version_idx <- grep("^Version:", desc_lines)
-  desc_lines <- append(desc_lines, date_line, after = version_idx)
-}
-writeLines(desc_lines, desc_path)
-
-# 2. Update repository URLs in R/install.R
+# Update repository URL in R/install.R
 install_r_path <- file.path(foyer_copy, "R", "install.R")
 install_lines <- readLines(install_r_path)
-releases_url <- paste0(repo_url, "/releases/download")
-releases_page <- paste0(repo_url, "/releases")
 
-# Update the three URL variables
-install_lines <- sub(
-  '^(\\.sitk_releases_base_url <- ").*(")',
-  paste0("\\1", releases_url, "\\2"),
-  install_lines
-)
-
-install_lines <- sub(
-  '^(\\.sitk_releases_page_url <- ").*(")',
-  paste0("\\1", releases_page, "\\2"),
-  install_lines
-)
-
+# Update the URL variable
 install_lines <- sub(
   '^(\\.sitk_repo_url <- ").*(")',
   paste0("\\1", repo_url, "\\2"),
@@ -127,7 +98,7 @@ install_lines <- sub(
 
 writeLines(install_lines, install_r_path)
 
-# 3. Build the source package
+# Build the source package
 message("Building foyer package...")
 # Set tar options to avoid uid/gid warnings when R CMD build creates the tarball.
 # --no-same-owner prevents tar from trying to preserve file ownership information,
@@ -143,12 +114,12 @@ if (!file.exists(tarball)) {
   stop("R CMD build failed. Expected tarball not found: ", tarball)
 }
 
-# 4. Create CRAN-like directory structure
+# Create CRAN-like directory structure
 dest_dir <- file.path(output_dir, "src", "contrib")
 dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
 file.rename(tarball, file.path(dest_dir, tarball))
 
-# 5. Generate PACKAGES files
+# Generate PACKAGES files
 write_PACKAGES(dest_dir, type = "source")
 
 message("CRAN-like repository created at: ", output_dir)

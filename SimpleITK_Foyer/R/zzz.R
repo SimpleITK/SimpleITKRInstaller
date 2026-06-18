@@ -16,7 +16,7 @@
   if (!full_pkg_installed) {
     packageStartupMessage(
       "================================================================================\n",
-      "Welcome to SimpleITK installer!\n\n",
+      "Welcome to the SimpleITK installer!\n\n",
       "The SimpleITK package is not yet installed.\n",
       "To download and install the latest pre-built binary for your platform, run:\n\n",
       "    install_simpleitk()\n\n",

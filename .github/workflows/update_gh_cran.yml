@@ -29,8 +29,7 @@ jobs:
           Rscript update_cran_repo.R \
             --foyer_dir SimpleITK_Foyer \
             --output_dir /tmp/cran_output \
-            --repo_url https://github.com/${{ github.repository }} \
-            --tag ${{ github.event.release.tag_name }}
+            --repo_url https://github.com/${{ github.repository }}
 
       - name: Deploy to gh-pages
         run: |

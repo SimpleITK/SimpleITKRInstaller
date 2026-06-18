@@ -1,5 +1,5 @@
 Package: SimpleITK.foyer
-Version: 0.0.0
+Version: 1.0.0
 Title: Lightweight Installer for SimpleITK
 Authors@R: c(person("Richard", "Beare", role = "aut",
                      email = "Richard.Beare@ieee.org"),
