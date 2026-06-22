@@ -13,7 +13,7 @@ Authors@R: c(person("Richard", "Beare", role = c("aut", "cre"),
                      email = "blowekamp@mail.nih.gov"),
 		     person("Ziv", "Yaniv", role="aut",
 		     email = "zivyaniv@nih.gov"))
-Author: Richard Beare, Bradley Lowekamp, Ziv Yaniv plus loads of others
+Author: Richard Beare, Bradley Lowekamp, Ziv Yaniv, The Insight Software Consortium and the ITK user and developer communities.
 Depends: R (>= 4.0)
 Imports: methods,
          desc

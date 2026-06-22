@@ -2,6 +2,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'  # Trigger on version tags
   pull_request:
     branches:
       - main
@@ -11,25 +13,29 @@ on:
   # run testing on the first of each month 5am ET / 9am UTC
   - cron: '0 9 1 * *'
 
+# Set minimal permissions for all jobs (read-only)
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   R-build:
     strategy:
       fail-fast: false
       matrix:
         R: [ '4.4.3', '4.5.3', '4.6.0' ]
-        os: [ 'macos-15-intel', 'ubuntu-latest', 'windows-latest']
+        os: [ 'macos-15-intel', 'ubuntu-24.04', 'windows-latest']
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
-    env:
-      R_LIBS: ${{ github.workspace }}/Rlibs
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.sha }}
-    - name: Setup R
-      uses: r-lib/actions/setup-r@v2
+
+    - name: Setup R (also sets the R_LIBS_USER environment variable)
+      uses: r-lib/actions/setup-r@a51a8012b0aab7c32ef9d19bf54da93f3254335e # v2.12.0
       with:
         r-version: ${{ matrix.R }}
     - name: System Dependencies
@@ -41,7 +47,6 @@ jobs:
     - name: Configuration Information
       shell: bash
       run: |
-        mkdir -p "$R_LIBS"
         cmake --version
         if [[ "$RUNNER_OS" == "Windows" ]]; then
           ls -d /c/rtools* 2>/dev/null || echo "No rtools found in /c/"
@@ -55,11 +60,153 @@ jobs:
     - name: Install R packages
       shell: bash
       run: |
-        R -e "install.packages(c('remotes'), lib=Sys.getenv('R_LIBS'), repos='https://cloud.r-project.org/')"
+        R -e "install.packages(c('remotes'), lib=Sys.getenv('R_LIBS_USER'), repos='https://cloud.r-project.org/')"
     - name: Build and test
       shell: bash
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
-        R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS'))"
+        R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
         R -e "library(SimpleITK); Version()"
+    - name: Rename package artifact
+    # The original artifact name is SimpleITK_<sitk_version>.zip (windows),
+    # SimpleITK_<sitk_version>.tgz (macOS), or SimpleITK_<sitk_version>.tar.gz (Linux).
+    # This is irrespective of the R version. We need to rename them so that they are
+    # unique. Otherwise we could not upload artifacts for different
+    # R versions because the names collide.
+      id: rename_package
+      shell: bash
+      run: |
+        # canonical approach to collecting build artifacts in a directory for upload
+        mkdir -p artifacts
+
+        # remotes::install_git(..., INSTALL_opts='--build') writes a valid package
+        # file into the current working directory (GITHUB_WORKSPACE).
+        PKG_PATH=$(find "${GITHUB_WORKSPACE}" -maxdepth 1 -type f \
+          \( -name 'SimpleITK_*.tgz' -o -name 'SimpleITK_*.zip' -o -name 'SimpleITK_*.tar.gz' \) \
+          | head -n 1)
+
+        if [[ -z "${PKG_PATH}" ]]; then
+          echo "No built package artifact found in ${GITHUB_WORKSPACE}."
+          exit 1
+        fi
+
+        # package naming is SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_${OS_ARCHIVE_EXT}
+        R_VERSION_SHORT=$(echo "${{ matrix.R }}" | cut -d'.' -f1,2)
+        PKG_VERSION=$(Rscript -e "cat(read.dcf('DESCRIPTION', 'Version')[1])")
+
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_macos-x86_64.tgz"
+        elif [[ "$RUNNER_OS" == "Linux" ]]; then
+          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_linux-x86_64.tar.gz"
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_windows-x86_64.zip"
+        else
+          echo "Unsupported OS: $RUNNER_OS"
+          exit 1
+        fi
+
+        mv "${PKG_PATH}" "${GITHUB_WORKSPACE}/artifacts/${PKG_NAME}"
+        ls -lh artifacts/
+
+        # Export PKG_NAME as output for use in upload step
+        echo "pkg_name=${PKG_NAME}" >> $GITHUB_OUTPUT
+    - name: Upload binary package
+      if: steps.rename_package.outcome == 'success'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: ${{ steps.rename_package.outputs.pkg_name }}
+        path: artifacts/*
+        retention-days: 30
+
+  create-release:
+    name: Create GitHub Draft Release
+    # Only run this job for tag pushes after the R-build job completes
+    # successfully.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: R-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        fetch-depth: 1
+
+    - name: Verify tag matches SITK_TARGET
+      id: verify_tag
+      run: |
+        SITK_TARGET=$(grep '^SITK_TARGET:' DESCRIPTION | awk '{print $2}')
+        TAG_NAME="${{ github.ref_name }}"
+        if [ "${TAG_NAME}" != "${SITK_TARGET}" ]; then
+          echo "Tag ${TAG_NAME} does not match SITK_TARGET ${SITK_TARGET}"
+          echo "Skipping draft release creation."
+          echo "draft_release=false" >> $GITHUB_OUTPUT
+        else
+          echo "draft_release=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Download all artifacts
+      if: steps.verify_tag.outputs.draft_release == 'true'
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        path: release-artifacts
+        pattern: SimpleITK_*
+        merge-multiple: true
+
+    - name: Display downloaded artifacts
+      if: steps.verify_tag.outputs.draft_release == 'true'
+      run: |
+        echo "Downloaded artifacts:"
+        ls -lhR release-artifacts/
+
+    # This action automatically creates the release if it doesn't exist,
+    # or updates it if it does.
+    - name: Create or Update Draft Release
+      if: steps.verify_tag.outputs.draft_release == 'true'
+      uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        draft: true
+        name: SimpleITK ${{ github.ref_name }} R Package Release
+        body: |
+          **Please review and test the packages before publishing this release. Then remove this line and make it public.**
+
+          Detailed release notes are available on the [main SimpleITK repository](https://github.com/SimpleITK/SimpleITK/releases/${{ github.ref_name }}).
+
+          To install SimpleITK we use a Foyer helper package that downloads the appropriate binary from the GitHub release assets. This is a two step process.
+
+          To install the latest SimpleITK version to your primary library directory, first element of `.libPaths()`, run the following:
+
+          ```r
+          # install the SimpleITK foyer package
+          install.packages(
+            "SimpleITK.foyer",
+            repos = c("https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"),
+            type = "source"
+          )
+
+          # Use foyer to install SimpleITK
+          library(SimpleITK.foyer)
+          install_simpleitk()
+          ```
+          Now you can load the SimpleITK library as usual:
+
+          ```r
+          library(SimpleITK)
+          ```
+
+          The `install_simpleitk` function provides finer installation control such as SimpleITK version, library installation location and more. To see all options:
+
+          ```r
+          help(install_simpleitk)
+          ```
+
+          If you directly download the package artifact from this release page, before you install the package you will need to first unzip the file. Then rename it to `SimpleITK_<version>.zip` (windows), `SimpleITK_<version>.tgz` (macOS), or `SimpleITK_<version>.tar.gz` (Linux) to match the expected file name format.
+
+        files: |
+          release-artifacts/*
+        fail_on_unmatched_files: true

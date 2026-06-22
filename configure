@@ -54,9 +54,14 @@ mkdir -p SITK
     mkdir -p Build &&
         cd Build &&
         cmake \
+        -D "CMAKE_CXX_FLAGS:STRING=-fvisibility=hidden -fvisibility-inlines-hidden ${CFLAGS}" \
+        -D "CMAKE_C_FLAGS:STRING=-fvisibility=hidden ${CFLAGS}" \
+        -DITK_C_OPTIMIZATION_FLAGS:STRING="" \
+        -DITK_CXX_OPTIMIZATION_FLAGS:STRING="" \
         -DWRAP_DEFAULT=OFF\
         -DWRAP_R=ON \
         -DSimpleITK_BUILD_DISTRIBUTE=ON \
+        -DSimpleITK_BUILD_STRIP:BOOL=ON \
         -DBUILD_EXAMPLES=OFF \
         -DBUILD_TESTING=OFF \
         -DCMAKE_BUILD_TYPE=MinSizeRel \

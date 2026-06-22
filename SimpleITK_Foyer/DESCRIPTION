@@ -1,0 +1,25 @@
+Package: SimpleITK.foyer
+Version: 1.0.0
+Title: Lightweight Installer for SimpleITK
+Authors@R: c(person("Richard", "Beare", role = "aut",
+                     email = "Richard.Beare@ieee.org"),
+              person("Bradley", "Lowekamp", role = "aut",
+                     email = "blowekamp@mail.nih.gov"),
+              person("Ziv", "Yaniv", role = c("aut", "cre"),
+                     email = "zivyaniv@nih.gov"))
+Description: Provides a lightweight installer for the SimpleITK package, which
+    is an interface to the Insight Toolkit (ITK) for medical image segmentation
+    and registration. After installing this package, call install_simpleitk().
+    to download and install the pre-built binary packages for your platform
+    from the SimpleITKRInstaller GitHub releases. Due to the large size of the compiled
+    package, the actual functionality is distributed as platform-specific binaries
+    on GitHub.
+License: Apache License (>= 2)
+URL: https://github.com/SimpleITK/SimpleITKRInstaller
+BugReports: https://github.com/SimpleITK/SimpleITKRInstaller/issues
+Encoding: UTF-8
+Depends: R (>= 4.0)
+Imports: utils
+SystemRequirements: Internet connection for downloading binary packages
+Maintainer: Ziv Yaniv <zivyaniv@nih.gov>
+Config/roxygen2/version: 8.0.0
