@@ -41,7 +41,10 @@ jobs:
             R_VERSION="<< parameters.r-version >>"
             # Install rig, R Installation Manager (https://github.com/r-lib/rig) to control installed R version
             if [ "$RUNNER_OS" == "macos" ]; then
-              brew install --cask r-lib/rig/rig
+              # Install specific version of rig (0.8.0) directly from GitHub releases
+              curl -L -o /tmp/rig.pkg https://github.com/r-lib/rig/releases/download/v0.8.0/rig-0.8.0-macOS-arm64.pkg
+              ls -lh /tmp/rig.pkg  # Verify file exists and has reasonable size
+              sudo installer -pkg /tmp/rig.pkg -target /
               rig add $R_VERSION
               # on macOS the R package is installed into a MAJOR.MINOR directory
               # the PATCH is ignored (only one patch version supported) the

@@ -96,7 +96,13 @@ jobs:
         PKG_VERSION=$(Rscript -e "cat(read.dcf('DESCRIPTION', 'Version')[1])")
 
         if [[ "$RUNNER_OS" == "macOS" ]]; then
-          PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_macos-x86_64.tgz"
+          # Detect architecture: arm64 or x86_64
+          ARCH=$(uname -m)
+          if [[ "$ARCH" == "arm64" || "$ARCH" == "aarch64" ]]; then
+            PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_macos-arm64.tgz"
+          else
+            PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_macos-x86_64.tgz"
+          fi
         elif [[ "$RUNNER_OS" == "Linux" ]]; then
           PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_linux-x86_64.tar.gz"
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
