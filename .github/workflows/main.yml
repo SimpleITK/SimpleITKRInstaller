@@ -177,7 +177,7 @@ jobs:
 
           Detailed release notes are available on the [main SimpleITK repository](https://github.com/SimpleITK/SimpleITK/releases/${{ github.ref_name }}).
 
-          To install SimpleITK we use a Foyer helper package that downloads the appropriate binary from the GitHub release assets. This is a two step process.
+          To install SimpleITK we use a Foyer helper package that downloads the appropriate binary. This is a two step process.
 
           To install the latest SimpleITK version to your primary library directory, first element of `.libPaths()`, run the following:
 
@@ -185,7 +185,7 @@ jobs:
           # install the SimpleITK foyer package
           install.packages(
             "SimpleITK.foyer",
-            repos = c("https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"),
+            repos = c("https://simpleitk.r-universe.dev"),
             type = "source"
           )
 
@@ -207,6 +207,7 @@ jobs:
 
           If you directly download the package artifact from this release page, before you install the package you will need to first unzip the file. Then rename it to `SimpleITK_<version>.zip` (windows), `SimpleITK_<version>.tgz` (macOS), or `SimpleITK_<version>.tar.gz` (Linux) to match the expected file name format.
 
+          If you need a custom build of SimpleITK or the binary package for your platform, R version, or desired SimpleITK version is not available you will need to build the package yourself. To do this, use the [remotes based installer](https://github.com/SimpleITK/SimpleITKRInstaller).
         files: |
           release-artifacts/*
         fail_on_unmatched_files: true
