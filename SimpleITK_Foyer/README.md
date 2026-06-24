@@ -4,10 +4,10 @@ This is a lightweight installer package for SimpleITK, providing easy access to 
 
 ## Installation
 
-Install the SimpleITK foyer package from GitHub Pages:
+Install the SimpleITK foyer package from r-universe:
 ```r
 install.packages("SimpleITK.foyer",
-  repos = "https://SimpleITK.github.io/SimpleITKRInstaller",
+  repos = "https://simpleitk.r-universe.dev",
   type = "source")
 ```
 
@@ -37,7 +37,7 @@ img <- ReadImage("path/to/image.dcm")
 
 The full SimpleITK package is quite large (~40-50 MB depending on platform) and requires significant compilation time when built from source. To make it easier for users, we distribute:
 
-1. **This lightweight foyer package** - hosted on GitHub Pages as a CRAN-like repository
+1. **This lightweight foyer package** - hosted on the r-universe CRAN-like platform
 2. **Pre-built binaries on GitHub Releases** - the actual SimpleITK package
 
 The foyer package installs instantly and provides the `install_simpleitk()` function which downloads the correct pre-built binary for your platform.

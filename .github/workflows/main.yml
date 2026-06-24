@@ -4,9 +4,13 @@ on:
       - main
     tags:
       - 'v*'  # Trigger on version tags
+    paths-ignore:
+      - 'SimpleITK_Foyer/**'
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - 'SimpleITK_Foyer/**'
   workflow_dispatch:
   # enable manual triggering
   schedule:
