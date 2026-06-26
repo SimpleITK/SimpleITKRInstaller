@@ -7,9 +7,9 @@ Authors@R: c(person("Richard", "Beare", role = "aut",
                      email = "blowekamp@mail.nih.gov"),
               person("Ziv", "Yaniv", role = c("aut", "cre"),
                      email = "zivyaniv@nih.gov"))
-Description: Provides a lightweight installer for the SimpleITK package, which
+Description: A lightweight installer for the SimpleITK image analysis package, which
     is an interface to the Insight Toolkit (ITK) for medical image segmentation
-    and registration. After installing this package, call install_simpleitk().
+    and registration. After installing this package, call install_simpleitk()
     to download and install the pre-built binary packages for your platform
     from the SimpleITKRInstaller GitHub releases. Due to the large size of the compiled
     package, the actual functionality is distributed as platform-specific binaries
