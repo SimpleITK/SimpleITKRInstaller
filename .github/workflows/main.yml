@@ -30,7 +30,7 @@ jobs:
         # Build against oldest patch versions x.y.0 as R is forward
         # compatible.
         R: [ '4.4.0', '4.5.0', '4.6.0' ]
-        os: [ 'macos-15-intel', 'ubuntu-24.04', 'windows-latest']
+        os: [ 'macos-15-intel', 'windows-latest']
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
 
@@ -72,7 +72,7 @@ jobs:
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
-        R -e "Sys.setenv(MAKEJ=2); remotes::install_git(c('.'), lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
+        R -e "Sys.setenv(MAKEJ=2); remotes::install_local('.', lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
         R -e "library(SimpleITK); Version()"
     - name: Rename package artifact
     # The original artifact name is SimpleITK_<sitk_version>.zip (windows),
@@ -131,12 +131,98 @@ jobs:
         path: artifacts/*
         retention-days: 30
 
+  R-build-linux:
+    # Build the Linux binary inside an AlmaLinux 8 container so that the
+    # resulting shared library only requires GLIBC >= 2.28.  This makes the
+    # package compatible with RHEL/Rocky/AlmaLinux 8+, Ubuntu 20.04 LTS+,
+    # Debian 11+, and any distribution that ships a newer GLIBC.
+    strategy:
+      fail-fast: false
+      matrix:
+        R: [ '4.4.0', '4.5.0', '4.6.0' ]
+    runs-on: ubuntu-latest
+    container:
+      image: almalinux:8
+    name: ${{ matrix.R }} almalinux-8 build
+
+    steps:
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha }}
+
+    - name: System Dependencies
+      run: |
+        dnf install -y epel-release
+        dnf install -y --allowerasing \
+          cmake git gcc gcc-c++ make patch \
+          libcurl-devel openssl-devel libxml2-devel \
+          harfbuzz-devel fribidi-devel libssh2-devel \
+          curl tar
+    # Manual installation of official RHEL 8 R distribution from posit.
+    # The github action will not run in the almalinux container.
+    # Note: Posit uses the "centos-8" slug for AlmaLinux 8 packages
+    # (see https://github.com/rstudio/r-builds under Manual Installation section).
+    - name: Install R ${{ matrix.R }} and set up R library
+      run: |
+        curl -fsSL -o R-${{ matrix.R }}.rpm \
+          "https://cdn.posit.co/r/centos-8/pkgs/R-${{ matrix.R }}-1-1.x86_64.rpm"
+        dnf install -y R-${{ matrix.R }}.rpm
+        rm R-${{ matrix.R }}.rpm
+        echo "/opt/R/${{ matrix.R }}/bin" >> $GITHUB_PATH
+        mkdir -p "${HOME}/R/library"
+        echo "R_LIBS_USER=${HOME}/R/library" >> $GITHUB_ENV
+
+    - name: Configuration Information
+      run: |
+        cmake --version
+        c++ --version
+        which R
+        R --version
+
+    - name: Install R packages
+      run: |
+        R -e "install.packages(c('remotes'), lib=Sys.getenv('R_LIBS_USER'), repos='https://cloud.r-project.org/')"
+
+    - name: Build and test
+      env:
+        ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
+      run: |
+        R -e "Sys.setenv(MAKEJ=2); remotes::install_local('.', lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
+        R -e "library(SimpleITK); Version()"
+
+    - name: Rename package artifact
+      id: rename_package
+      run: |
+        mkdir -p artifacts
+        PKG_PATH=$(find "${GITHUB_WORKSPACE}" -maxdepth 1 -type f \
+          -name 'SimpleITK_*.tar.gz' \
+          | head -n 1)
+        if [[ -z "${PKG_PATH}" ]]; then
+          echo "No built package artifact found in ${GITHUB_WORKSPACE}."
+          exit 1
+        fi
+        R_VERSION_SHORT=$(echo "${{ matrix.R }}" | cut -d'.' -f1,2)
+        PKG_VERSION=$(Rscript -e "cat(read.dcf('DESCRIPTION', 'Version')[1])")
+        PKG_NAME="SimpleITK_${PKG_VERSION}_R${R_VERSION_SHORT}_linux-x86_64.tar.gz"
+        mv "${PKG_PATH}" "${GITHUB_WORKSPACE}/artifacts/${PKG_NAME}"
+        ls -lh artifacts/
+        echo "pkg_name=${PKG_NAME}" >> $GITHUB_OUTPUT
+
+    - name: Upload binary package
+      if: steps.rename_package.outcome == 'success'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: ${{ steps.rename_package.outputs.pkg_name }}
+        path: artifacts/*
+        retention-days: 30
+
   create-release:
     name: Create GitHub Draft Release
     # Only run this job for tag pushes after the R-build job completes
     # successfully.
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: R-build
+    needs: [R-build, R-build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
