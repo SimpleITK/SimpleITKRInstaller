@@ -20,6 +20,7 @@ BugReports: https://github.com/SimpleITK/SimpleITKRInstaller/issues
 Encoding: UTF-8
 Depends: R (>= 4.0)
 Imports: utils
+Suggests: SimpleITK
 SystemRequirements: Internet connection for downloading binary packages
 Maintainer: Ziv Yaniv <zivyaniv@nih.gov>
 Config/roxygen2/version: 8.0.0
