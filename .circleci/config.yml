@@ -129,3 +129,5 @@ workflows:
               only:
                 - main
                 - /pull\/.*/  # Run on all pull request branches
+            tags:
+              only: /^v.*/

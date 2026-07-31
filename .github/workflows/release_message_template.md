@@ -1,4 +1,4 @@
-**Please manually upload the artifacts from CircleCI, review and test the packages before publishing this release. Then remove this line and make it public.**
+**Please manually upload the artifacts from [CircleCI](https://dl.circleci.com/status-badge/redirect/gh/SimpleITK/SimpleITKRInstaller/tree/main), review and test the packages before publishing this release. Then remove this line and make it public.**
 
 Detailed release notes are available on the [main SimpleITK repository](https://github.com/SimpleITK/SimpleITK/releases/{{VERSION}}).
 
