@@ -177,10 +177,9 @@ install_simpleitk <- function(version = NULL,
 }
 
 
-#' Get Platform Information
-#'
-#' @return A list with platform and extension, or NULL if unsupported
-#' @keywords internal
+# Get Platform Information
+#
+# @return A list with platform and extension, or NULL if unsupported
 get_platform_info <- function() {
   os <- Sys.info()["sysname"]
   arch <- Sys.info()["machine"]

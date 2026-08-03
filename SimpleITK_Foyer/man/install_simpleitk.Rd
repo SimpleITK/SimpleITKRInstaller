@@ -39,7 +39,7 @@ platform and R version from GitHub releases.
 This function detects your operating system, R version, and architecture,
 then downloads the appropriate pre-built binary package from the SimpleITK
 GitHub releases. The binary packages are built by the SimpleITK project
-and hosted at: \url{https://github.com/SimpleITK/SimpleITKRInstaller/releases}
+and hosted on GitHub releases.
 
 Supported platforms:
 \itemize{
