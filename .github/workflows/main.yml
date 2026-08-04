@@ -72,7 +72,7 @@ jobs:
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
-        R -e "Sys.setenv(MAKEJ=2); remotes::install_local('.', lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
+        R -e "Sys.setenv(MAKEJ=2); Sys.setenv(ADDITIONAL_SITK_MODULES='-DSimpleITK_USE_ELASTIX=ON'); remotes::install_local('.', lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
         R -e "library(SimpleITK); Version()"
     - name: Rename package artifact
     # The original artifact name is SimpleITK_<sitk_version>.zip (windows),
@@ -188,7 +188,7 @@ jobs:
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
-        R -e "Sys.setenv(MAKEJ=2); remotes::install_local('.', lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
+        R -e "Sys.setenv(MAKEJ=2); Sys.setenv(ADDITIONAL_SITK_MODULES='-DSimpleITK_USE_ELASTIX=ON'); remotes::install_local('.', lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
         R -e "library(SimpleITK); Version()"
 
     - name: Rename package artifact
