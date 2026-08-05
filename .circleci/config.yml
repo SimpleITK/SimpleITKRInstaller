@@ -92,7 +92,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             set -x
-            R -e "Sys.setenv(MAKEJ=3); remotes::install_git(c('.'), lib=c('${R_LIBS}'), upgrade='never', INSTALL_opts='--build')"
+            R -e "Sys.setenv(MAKEJ=3); Sys.setenv(ADDITIONAL_SITK_MODULES='-DSimpleITK_USE_ELASTIX=ON'); remotes::install_git(c('.'), lib=c('${R_LIBS}'), upgrade='never', INSTALL_opts='--build')"
             R -e "library(SimpleITK); Version()"
       - run:
           name: Rename package
