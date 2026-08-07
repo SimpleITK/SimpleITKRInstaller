@@ -73,8 +73,10 @@ mkdir -p SITK
     mkdir -p Build &&
         cd Build &&
         cmake \
-        -D "CMAKE_CXX_FLAGS:STRING=-fvisibility=hidden -fvisibility-inlines-hidden ${CFLAGS}" \
+        -D "CMAKE_CXX_FLAGS:STRING=-std=c++17 -fvisibility=hidden -fvisibility-inlines-hidden ${CFLAGS}" \
         -D "CMAKE_C_FLAGS:STRING=-fvisibility=hidden ${CFLAGS}" \
+        -DCMAKE_CXX_STANDARD=17 \
+        -DCMAKE_CXX_STANDARD_REQUIRED=ON \
         ${CMAKE_OSX_ARGS} \
         -DITK_C_OPTIMIZATION_FLAGS:STRING="" \
         -DITK_CXX_OPTIMIZATION_FLAGS:STRING="" \
