@@ -53,10 +53,12 @@ git checkout "${SITK_TARGET}"
 SITK_SRC="${TMPDIR}/SimpleITK"
 
 # Derive R-compatible Version from the checked-out commit/tag.
-ACTUAL_TAG=$(git -C "${SITK_SRC}" describe --tags --exact-match 2>/dev/null || true)
+# Matches vMAJOR.MINOR[.PATCH][SUFFIX] where SUFFIX is alphanumeric (e.g. v3.0, v3.0.0, v3.0rc1, v3.0.0a1).
+# Commits not on an exact vN.N… tag fall through to the ancestor-search branch below.
+ACTUAL_TAG=$(git -C "${SITK_SRC}" describe --tags --exact-match --match 'v[0-9]*.[0-9]*' 2>/dev/null || true)
 if [ -n "${ACTUAL_TAG}" ]; then
     # Exact tag: strip leading 'v', then strip any non-numeric pre-release suffix.
-    # e.g. v2.5.0rc1->2.5.0.9000, v3.0.0a1->3.0.0.9000, v0.3.0b->0.3.0.9000, v2.5.3->2.5.3
+    # e.g. v2.5.0rc1->2.5.0.9000, v3.0.0a1->3.0.0.9000, v0.10rc1->0.10.0.9000, v2.5.3->2.5.3
     RAW=$(echo "${ACTUAL_TAG}" | sed 's/^v//')
     STRIPPED=$(echo "${RAW}" | sed 's/\([0-9][0-9]*\(\.[0-9][0-9]*\)*\)[^0-9.].*/\1/')
     if [ -z "${STRIPPED}" ] || ! echo "${STRIPPED}" | grep -qE '^[0-9]+(\.[0-9]+)*$'; then
@@ -64,27 +66,30 @@ if [ -n "${ACTUAL_TAG}" ]; then
     elif [ "${RAW}" = "${STRIPPED}" ]; then
         R_VERSION="${STRIPPED}"
     else
+        case "${STRIPPED}" in *.*.*)  ;; *.*) STRIPPED="${STRIPPED}.0" ;; *) STRIPPED="${STRIPPED}.0.0" ;; esac
         R_VERSION="${STRIPPED}.9000"
     fi
 else
     # Not on an exact tag.
     # First preference: a future tag (HEAD is an ancestor of the tag) — building toward it.
     # git describe --contains output is "TAG~N" or "TAG^0~N"; strip from first ~ or ^.
-    FUTURE_TAG=$(git -C "${SITK_SRC}" describe --tags --contains HEAD 2>/dev/null | head -n 1 | sed 's/[~^].*//' || true)
+    FUTURE_TAG=$(git -C "${SITK_SRC}" describe --tags --contains --match 'v[0-9]*.[0-9]*.[0-9]*' HEAD 2>/dev/null | head -n 1 | sed 's/[~^].*//' || true)
     if [ -n "${FUTURE_TAG}" ]; then
         BASE=$(echo "${FUTURE_TAG}" | sed 's/^v//')
         STRIPPED=$(echo "${BASE}" | sed 's/\([0-9][0-9]*\(\.[0-9][0-9]*\)*\)[^0-9.].*/\1/')
         if [ -n "${STRIPPED}" ] && echo "${STRIPPED}" | grep -qE '^[0-9]+(\.[0-9]+)*$'; then
+            case "${STRIPPED}" in *.*.*)  ;; *.*) STRIPPED="${STRIPPED}.0" ;; *) STRIPPED="${STRIPPED}.0.0" ;; esac
             R_VERSION="${STRIPPED}.9000"
         else
             R_VERSION="0.0.0.9000"
         fi
     else
         # Second preference: nearest ancestor tag.
-        BASE=$(git -C "${SITK_SRC}" describe --tags 2>/dev/null | sed 's/-[0-9]*-g[0-9a-f]*//' | sed 's/^v//' || true)
+        BASE=$(git -C "${SITK_SRC}" describe --tags --match 'v[0-9]*.[0-9]*.[0-9]*' 2>/dev/null | sed 's/-[0-9]*-g[0-9a-f]*//' | sed 's/^v//' || true)
         if [ -n "${BASE}" ]; then
             STRIPPED=$(echo "${BASE}" | sed 's/\([0-9][0-9]*\(\.[0-9][0-9]*\)*\)[^0-9.].*/\1/')
             if [ -n "${STRIPPED}" ] && echo "${STRIPPED}" | grep -qE '^[0-9]+(\.[0-9]+)*$'; then
+                case "${STRIPPED}" in *.*.*)  ;; *.*) STRIPPED="${STRIPPED}.0" ;; *) STRIPPED="${STRIPPED}.0.0" ;; esac
                 R_VERSION="${STRIPPED}.9000"
             else
                 R_VERSION="0.0.0.9000"
