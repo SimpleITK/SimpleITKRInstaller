@@ -30,7 +30,7 @@ jobs:
         # Build against oldest patch versions x.y.0 as R is forward
         # compatible.
         R: [ '4.4.0', '4.5.0', '4.6.0' ]
-        os: [ 'macos-15-intel', 'windows-latest']
+        os: [ 'macos-15-intel', 'windows-latest' ]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
 
@@ -155,7 +155,7 @@ jobs:
       run: |
         dnf install -y epel-release
         dnf install -y --allowerasing \
-          cmake git gcc gcc-c++ make patch \
+          cmake git gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ make patch \
           libcurl-devel openssl-devel libxml2-devel \
           harfbuzz-devel fribidi-devel libssh2-devel \
           curl tar
@@ -188,6 +188,7 @@ jobs:
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
+        source scl_source enable gcc-toolset-13
         R -e "Sys.setenv(MAKEJ=2); Sys.setenv(ADDITIONAL_SITK_MODULES='-DSimpleITK_USE_ELASTIX=ON'); remotes::install_local('.', lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
         R -e "library(SimpleITK); Version()"
 
