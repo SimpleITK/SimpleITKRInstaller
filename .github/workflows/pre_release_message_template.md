@@ -2,35 +2,8 @@
 
 Detailed release notes are available on the [main SimpleITK repository](https://github.com/SimpleITK/SimpleITK/releases/{{VERSION}}).
 
-To install SimpleITK we use a Foyer helper package that downloads the appropriate binary. This is a two step process.
 
-To install the latest SimpleITK version to your primary library directory, first element of `.libPaths()`, run the following:
-
-```r
-# install the SimpleITK foyer package
-install.packages(
-  "SimpleITK.foyer",
-  repos = c("https://simpleitk.r-universe.dev"),
-  type = "source"
-)
-
-# Use foyer to install SimpleITK
-library(SimpleITK.foyer)
-install_simpleitk()
-```
-Now you can load the SimpleITK library as usual:
-
-```r
-library(SimpleITK)
-```
-
-The `install_simpleitk` function provides finer installation control such as SimpleITK version, library installation location and more. To see all options:
-
-```r
-help(install_simpleitk)
-```
-
-To install the package directly from this page, using the URL to the asset which matches your OS and R version:
+Install the package directly from this page, using the URL to the asset which matches your OS and R version:
 
 ```r
 install.packages("https://github.com/SimpleITK/SimpleITKRInstaller/releases/download/{{VERSION}}/PACKAGE_FILE", repos = NULL, type = "source")
