@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+      - 'release-*'
     tags:
       - 'v*'  # Trigger on version tags
     paths-ignore:
@@ -9,6 +10,7 @@ on:
   pull_request:
     branches:
       - main
+      - 'release-*'
     paths-ignore:
       - 'SimpleITK_Foyer/**'
   workflow_dispatch:
@@ -30,7 +32,7 @@ jobs:
         # Build against oldest patch versions x.y.0 as R is forward
         # compatible.
         R: [ '4.4.0', '4.5.0', '4.6.0' ]
-        os: [ 'macos-15-intel', 'windows-latest']
+        os: [ 'macos-15-intel', 'windows-latest' ]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.R }} ${{ matrix.os }} build
 
@@ -155,7 +157,7 @@ jobs:
       run: |
         dnf install -y epel-release
         dnf install -y --allowerasing \
-          cmake git gcc gcc-c++ make patch \
+          cmake git gcc-toolset-13-gcc gcc-toolset-13-gcc-c++ make patch \
           libcurl-devel openssl-devel libxml2-devel \
           harfbuzz-devel fribidi-devel libssh2-devel \
           curl tar
@@ -188,6 +190,7 @@ jobs:
       env:
         ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS: 2
       run: |
+        source scl_source enable gcc-toolset-13
         R -e "Sys.setenv(MAKEJ=2); Sys.setenv(ADDITIONAL_SITK_MODULES='-DSimpleITK_USE_ELASTIX=ON'); remotes::install_local('.', lib=Sys.getenv('R_LIBS_USER'), upgrade='never', INSTALL_opts='--build')"
         R -e "library(SimpleITK); Version()"
 
@@ -241,13 +244,19 @@ jobs:
         if [ "${TAG_NAME}" != "${SITK_TARGET}" ]; then
           echo "Tag ${TAG_NAME} does not match SITK_TARGET ${SITK_TARGET}"
           echo "Skipping draft release creation."
-          echo "draft_release=false" >> $GITHUB_OUTPUT
+          echo "create_draft_release=false" >> $GITHUB_OUTPUT
         else
-          echo "draft_release=true" >> $GITHUB_OUTPUT
+          echo "create_draft_release=true" >> $GITHUB_OUTPUT
+        fi
+        # if tag is not vMAJOR.MINOR.PATCH.SUB_PATCH (all numeric) then this is a pre-release
+        if [[ "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+          echo "is_prerelease=false" >> $GITHUB_OUTPUT
+        else
+          echo "is_prerelease=true" >> $GITHUB_OUTPUT
         fi
 
     - name: Download all artifacts
-      if: steps.verify_tag.outputs.draft_release == 'true'
+      if: steps.verify_tag.outputs.create_draft_release == 'true'
       uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
         path: release-artifacts
@@ -255,25 +264,31 @@ jobs:
         merge-multiple: true
 
     - name: Display downloaded artifacts
-      if: steps.verify_tag.outputs.draft_release == 'true'
+      if: steps.verify_tag.outputs.create_draft_release == 'true'
       run: |
         echo "Downloaded artifacts:"
         ls -lhR release-artifacts/
 
     - name: Generate release body message with current version
-      if: steps.verify_tag.outputs.draft_release == 'true'
+      if: steps.verify_tag.outputs.create_draft_release == 'true'
       run: |
-        sed 's/{{VERSION}}/${{ github.ref_name }}/g' .github/workflows/release_message_template.md > /tmp/release_body.md
+        if [[ "${{ steps.verify_tag.outputs.is_prerelease }}" == "true" ]]; then
+          TEMPLATE=".github/workflows/pre_release_message_template.md"
+        else
+          TEMPLATE=".github/workflows/release_message_template.md"
+        fi
+        sed 's/{{VERSION}}/${{ github.ref_name }}/g' "${TEMPLATE}" > /tmp/release_body.md
 
     # This action automatically creates the release if it doesn't exist,
     # or updates it if it does.
     - name: Create or Update Draft Release
-      if: steps.verify_tag.outputs.draft_release == 'true'
+      if: steps.verify_tag.outputs.create_draft_release == 'true'
       uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         draft: true
+        prerelease: ${{ steps.verify_tag.outputs.is_prerelease == 'true' }}
         name: SimpleITK ${{ github.ref_name }} R Package Release
         body_path: /tmp/release_body.md
         files: |
