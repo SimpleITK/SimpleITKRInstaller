@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - main
-      - 'release-*'
     tags:
       - 'v*'  # Trigger on version tags
     paths-ignore:
