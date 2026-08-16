@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "SimpleITK: A Simplified Interface to the Insight Toolkit"
+license: Apache-2.0
+url: "https://www.simpleitk.org"
+repository-code: "https://github.com/SimpleITK/SimpleITK"
+authors:
+  - family-names: Beare
+    given-names: Richard
+    email: Richard.Beare@ieee.org
+  - family-names: Lowekamp
+    given-names: Bradley
+    email: blowekamp@mail.nih.gov
+  - family-names: Yaniv
+    given-names: Ziv
+    email: zivyaniv@nih.gov
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Beare
+      given-names: Richard
+    - family-names: Lowekamp
+      given-names: Bradley
+    - family-names: Yaniv
+      given-names: Ziv
+  title: "Image Segmentation, Registration and Characterization in R with SimpleITK"
+  journal: "Journal of Statistical Software"
+  volume: 86
+  issue: 8
+  year: 2018
+  doi: 10.18637/jss.v086.i08
