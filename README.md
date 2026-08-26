@@ -34,7 +34,12 @@ On Windows requires [rtools](https://cran.r-project.org/bin/windows/Rtools/) ins
 ```R
 Sys.setenv(RTOOLS_HOME = "C:/rtools45")
 ```
-# Building a specific SimpleITK version
+
+# Installing the standard SimpleITK binary package
+
+Binary packages for the most common OS and R versions for the default SimpleITK configuration are readily available. See the latest release binaries and installation instructions [here](https://github.com/SimpleITK/SimpleITKRInstaller/releases/latest).
+
+# Building a custom SimpleITK binary package
 
 If you want to create a custom build for a specific SimpleITK release or a development version you need to:
 1. Set the `SITK_TARGET` in the `DESCRIPTION` file to the appropriate committish (hash, tag or branch).
