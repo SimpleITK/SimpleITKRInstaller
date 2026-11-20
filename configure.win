@@ -83,7 +83,7 @@ export MAKEJ
   
   # Configure with Unix Makefiles (Rtools toolchain)
   cmake -G "Unix Makefiles" \
-    -D "CMAKE_CXX_FLAGS:STRING=-fvisibility=hidden -fvisibility-inlines-hidden ${CFLAGS}" \
+    -D "CMAKE_CXX_FLAGS:STRING=-fvisibility=hidden -fvisibility-inlines-hidden -Wa,-mbig-obj ${CFLAGS}" \
     -D "CMAKE_C_FLAGS:STRING=-fvisibility=hidden ${CFLAGS}" \
     -DITK_C_OPTIMIZATION_FLAGS:STRING="" \
     -DITK_CXX_OPTIMIZATION_FLAGS:STRING="" \
